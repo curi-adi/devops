@@ -1,0 +1,521 @@
+AWS NETWORKING - HANDS-ON EXERCISE
+===================================
+
+OBJECTIVE: Build a complete VPC architecture with public and private subnets, 
+configure networking components, and understand how traffic flows in AWS.
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 1: VPC CREATION
+═══════════════════════════════════════════════════════════════════════════
+
+1. Navigate to VPC Console
+   - Go to AWS Console → VPC
+   - Check if default VPC exists (you won't use it)
+
+2. Create Custom VPC
+   - Click "Create VPC"
+   - Name: "jan26-vpc"
+   - IPv4 CIDR block: 10.0.0.0/16
+   - This gives you ~65,000 hosts
+   - Leave everything else default
+   - Click "Create VPC"
+
+3. Understand CIDR Blocks
+   - /32 = 1 host (not usable - gateway IP)
+   - /31 = 2 hosts (0 usable - gateway + broadcast)
+   - /24 = 256 hosts (254 usable)
+   - /16 = 65,536 hosts (65,534 usable)
+   
+   Rule: First IP = Gateway IP, Last IP = Broadcast IP
+   Formula: Usable hosts = Total hosts - 2
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 2: SUBNET CREATION
+═══════════════════════════════════════════════════════════════════════════
+
+WHY SUBNETS?
+- Break large networks into smaller chunks
+- Control public vs private access
+- Place resources in different availability zones
+- Reduce broadcast traffic overhead
+
+4. Create Public Subnet
+   - Go to Subnets → Create subnet
+   - VPC: jan26-vpc
+   - Name: "public-jan26"
+   - Availability Zone: ap-south-1a (or your region's first AZ)
+   - IPv4 CIDR: 10.0.1.0/24 (gives 254 usable hosts)
+   - Create subnet
+
+5. Create Private Subnet
+   - Create subnet
+   - VPC: jan26-vpc
+   - Name: "private-jan26"
+   - Availability Zone: ap-south-1a (same as public)
+   - IPv4 CIDR: 10.0.2.0/24
+   - Create subnet
+
+NOTE: In production, create 2-3 subnets per type across different AZs for high availability.
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 3: INTERNET GATEWAY (IGW)
+═══════════════════════════════════════════════════════════════════════════
+
+PURPOSE: Gateway to internet - enables inbound/outbound internet access
+
+6. Create Internet Gateway
+   - Go to Internet Gateways → Create
+   - Name: "jan26-igw"
+   - Click "Create internet gateway"
+
+7. Attach IGW to VPC
+   - Select your IGW
+   - Actions → Attach to VPC
+   - Choose: jan26-vpc
+   - Click "Attach internet gateway"
+
+RULE: 1 VPC = 1 IGW (one-to-one mapping)
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 4: ROUTE TABLES
+═══════════════════════════════════════════════════════════════════════════
+
+WHAT ARE ROUTE TABLES?
+- Configuration that tells traffic where to go
+- Like a gatekeeper with a rulebook
+- Each subnet must be associated with exactly 1 route table
+
+8. Create Public Route Table
+   - Go to Route Tables → Create route table
+   - Name: "public-rt-jan26"
+   - VPC: jan26-vpc
+   - Create route table
+
+9. Configure Public Route Table
+   - Select your public route table
+   - Go to "Routes" tab
+   - Click "Edit routes" → "Add route"
+   - Destination: 0.0.0.0/0 (all IPs)
+   - Target: Internet Gateway → select jan26-igw
+   - Save changes
+
+10. Associate Public Subnet with Public Route Table
+    - Go to "Subnet associations" tab
+    - Click "Edit subnet associations"
+    - Select "public-jan26" subnet
+    - Save associations
+
+DEFAULT LOCAL ROUTE: Every route table automatically has a local route 
+(10.0.0.0/16 → local) that allows all resources within VPC to talk to each other.
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 5: SECURITY GROUPS (FIREWALL)
+═══════════════════════════════════════════════════════════════════════════
+
+WHAT IS SECURITY GROUP?
+- Virtual firewall for EC2 instances
+- Controls inbound and outbound traffic
+- Works at instance level (not subnet level)
+
+11. Create/Modify Security Group
+    - Go to EC2 → Security Groups
+    - Select "default" security group OR create new one
+    - Click "Edit inbound rules"
+    - Add rule:
+      - Type: SSH
+      - Protocol: TCP
+      - Port: 22
+      - Source: 0.0.0.0/0 (anywhere - for demo only)
+    - Save rules
+
+PRODUCTION NOTE: Never use 0.0.0.0/0 for SSH. Use specific IP ranges.
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 6: EC2 INSTANCES - PUBLIC
+═══════════════════════════════════════════════════════════════════════════
+
+12. Launch Public EC2 Instance
+    - Go to EC2 → Instances → Launch instance
+    - Name: "demo-public"
+    - AMI: Amazon Linux 2 (or Ubuntu)
+    - Instance type: t2.micro (free tier)
+    - Key pair: Create new or select existing "jan26-key"
+      (Download and save the .pem file safely)
+
+13. Network Settings (Critical!)
+    - Click "Edit"
+    - VPC: jan26-vpc
+    - Subnet: public-jan26
+    - Auto-assign public IP: ENABLE
+    - Security group: Select the one with SSH rule (port 22)
+
+14. Launch Instance
+    - Review and click "Launch instance"
+    - Wait for status: "Running"
+
+15. Connect to Public Instance
+    - Select instance → Connect → SSH client
+    - Copy the SSH command
+    - On your local terminal:
+      
+      cd ~/Downloads
+      chmod 400 jan26-key.pem
+      ssh -i "jan26-key.pem" ec2-user@<PUBLIC_IP>
+    
+    - You should successfully connect
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 7: EC2 INSTANCES - PRIVATE
+═══════════════════════════════════════════════════════════════════════════
+
+16. Launch Private EC2 Instance
+    - Go to EC2 → Launch instance
+    - Name: "demo-private"
+    - Same AMI and instance type
+    - Key pair: jan26-key (SAME KEY - important!)
+
+17. Network Settings
+    - Edit network settings
+    - VPC: jan26-vpc
+    - Subnet: private-jan26 (NOT public)
+    - Auto-assign public IP: DISABLE
+    - Security group: Same as public instance
+
+18. Launch Instance
+    - Try to connect directly - it will FAIL
+    - No public IP, so you cannot reach it from internet
+
+19. Copy SSH Key to Public Instance
+    From your local machine:
+    
+    scp -i jan26-key.pem jan26-key.pem ec2-user@<PUBLIC_IP>:~/
+    
+    This copies your private key to the public instance.
+
+20. Connect to Private Instance via Jump Box
+    - SSH into public instance first
+    - From public instance, SSH to private:
+      
+      chmod 400 jan26-key.pem
+      ssh -i jan26-key.pem ec2-user@<PRIVATE_IP>
+    
+    - Check hostname to confirm you're on different machine:
+      
+      hostname
+    
+    You're now on private instance via jump box!
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 8: NAT GATEWAY (OUTBOUND ONLY ACCESS)
+═══════════════════════════════════════════════════════════════════════════
+
+PROBLEM: Private instance cannot reach internet for updates/patches.
+
+SOLUTION: NAT Gateway - allows OUTBOUND traffic only, blocks INBOUND.
+
+CONCEPT: Like using WiFi without port forwarding - you can browse internet, 
+but no one can initiate connection to you.
+
+21. Allocate Elastic IP
+    - Go to VPC → Elastic IPs
+    - Click "Allocate Elastic IP address"
+    - Click "Allocate"
+    - Note the allocated IP
+
+22. Create NAT Gateway
+    - Go to NAT Gateways → Create NAT gateway
+    - Name: "nat-jan26"
+    - Subnet: public-jan26 (MUST be public subnet)
+    - Connectivity type: Public
+    - Elastic IP: Select the one you just allocated
+    - Create NAT gateway
+    - Wait for status: "Available" (~2-3 minutes)
+
+23. Create Private Route Table
+    - Go to Route Tables → Create route table
+    - Name: "private-rt-jan26"
+    - VPC: jan26-vpc
+    - Create route table
+
+24. Configure Private Route Table
+    - Select private route table
+    - Routes tab → Edit routes → Add route
+    - Destination: 0.0.0.0/0
+    - Target: NAT Gateway → select nat-jan26
+    - Save changes
+
+25. Associate Private Subnet
+    - Subnet associations tab
+    - Edit subnet associations
+    - Select "private-jan26"
+    - Save associations
+
+26. Test Outbound Connectivity
+    - SSH to private instance (via jump box)
+    - Run: sudo yum update -y
+    - It should now work! Packages will download.
+    - But try connecting FROM outside - still blocked ✓
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 9: UNDERSTANDING THE ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════
+
+TRAFFIC FLOW - INBOUND (Internet → Public Instance):
+
+Internet → Internet Gateway → Public Route Table (0.0.0.0/0 → IGW) 
+→ Public Subnet → Security Group (port 22) → Public EC2
+
+TRAFFIC FLOW - JUMP BOX (Public → Private):
+
+Public EC2 → Local Route (10.0.0.0/16 → local) → Private Subnet 
+→ Security Group (port 22) → Private EC2
+
+TRAFFIC FLOW - OUTBOUND (Private Instance → Internet):
+
+Private EC2 → Private Route Table (0.0.0.0/0 → NAT) → NAT Gateway 
+→ Public Subnet → Internet Gateway → Internet
+
+KEY DIFFERENCES:
+- Internet Gateway: Bidirectional (inbound + outbound)
+- NAT Gateway: Unidirectional (outbound only)
+- Local Route: Internal VPC communication only
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 10: CLEANUP (IMPORTANT - AVOID CHARGES!)
+═══════════════════════════════════════════════════════════════════════════
+
+ALWAYS cleanup in this order:
+
+1. Terminate EC2 Instances
+   - EC2 → Instances → Select both instances
+   - Instance state → Terminate instance
+
+2. Delete NAT Gateway (takes 3-4 minutes)
+   - VPC → NAT Gateways → Select → Delete
+   - Wait until status shows "Deleted"
+
+3. Release Elastic IP
+   - VPC → Elastic IPs → Select → Release
+
+4. Delete Subnets (optional - free)
+   - VPC → Subnets → Select both → Delete
+
+5. Detach and Delete Internet Gateway
+   - VPC → Internet Gateways → Select
+   - Actions → Detach from VPC
+   - Actions → Delete internet gateway
+
+6. Delete Route Tables (optional - free)
+   - Cannot delete default route table
+
+7. Delete VPC (optional - free)
+   - VPC → Your VPCs → Select → Delete
+
+COST TRAP: NAT Gateway and Elastic IPs charge by the hour. Always delete after practice!
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 11: INTERVIEW QUESTIONS TO PREPARE
+═══════════════════════════════════════════════════════════════════════════
+
+1. What is the difference between public IP and Elastic IP?
+   Answer: Public IP changes on stop/start; Elastic IP is static and owned.
+
+2. Can you SSH to an instance without a public IP?
+   Answer: Yes, using AWS Systems Manager Session Manager (no port 22 needed).
+
+3. Why do we need subnets if we have a VPC?
+   Answer: Control access (public/private), reduce broadcast traffic, 
+   multi-AZ deployment, organize resources logically.
+
+4. What is CIDR notation 10.0.0.0/24?
+   Answer: Network with 256 IPs (254 usable), subnet mask 255.255.255.0
+
+5. Difference between Security Group and NACL?
+   Answer: SG = stateful, instance-level; NACL = stateless, subnet-level
+
+6. Can two VPCs have overlapping CIDR blocks?
+   Answer: Yes, but they cannot peer or connect to each other.
+
+7. What happens if you don't attach an Internet Gateway?
+   Answer: No internet access at all - fully isolated network.
+
+8. Why place NAT Gateway in public subnet?
+   Answer: NAT needs internet access; only public subnet has route to IGW.
+
+9. What is a jump box/bastion host?
+   Answer: Public instance used as entry point to access private instances.
+
+10. How many NAT Gateways should you have in production?
+    Answer: At least 2 (one per AZ) for high availability.
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 12: COMMON MISTAKES & TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════
+
+MISTAKE 1: Cannot SSH to public instance
+- Check: Public IP enabled?
+- Check: Security group has port 22 open?
+- Check: Route table has 0.0.0.0/0 → IGW?
+- Check: Internet Gateway attached to VPC?
+
+MISTAKE 2: Private instance has no internet
+- Check: NAT Gateway in public subnet?
+- Check: Private route table has 0.0.0.0/0 → NAT?
+- Check: NAT Gateway status is "Available"?
+- Check: Elastic IP allocated to NAT?
+
+MISTAKE 3: Cannot connect from public to private
+- Check: Both instances using same key pair?
+- Check: Key copied to public instance?
+- Check: Security group allows SSH (port 22)?
+- Check: Using private IP (not public)?
+
+MISTAKE 4: NAT Gateway not working
+- Wait 3-5 minutes after creation
+- Check route table association with private subnet
+- Verify NAT is in public subnet (not private!)
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 13: ADDITIONAL PRACTICE
+═══════════════════════════════════════════════════════════════════════════
+
+EXERCISE A: Multi-AZ Setup
+- Create 2 public subnets in different AZs (1a, 1b)
+- Create 2 private subnets in different AZs
+- Create 2 NAT Gateways (one per AZ)
+- Create separate route tables per AZ
+- Launch instances in each subnet
+
+EXERCISE B: IP Calculator Practice
+Use online IP calculator (ipcalc.org):
+
+Calculate for these:
+- 10.0.0.0/24 → How many hosts?
+- 192.168.1.0/28 → Usable range?
+- 172.16.0.0/16 → Subnet mask?
+
+EXERCISE C: Documentation
+- Take screenshots of each step
+- Draw network diagram showing all components
+- Label all IP addresses, subnets, routes
+- Save for future reference
+
+EXERCISE D: Explore AWS Console
+Left sidebar of VPC console - read about:
+- NACLs (Network ACLs)
+- VPC Peering
+- VPC Endpoints
+- Route Tables
+- Elastic IPs
+- DHCP Option Sets
+
+Left sidebar of EC2 console - understand:
+- Instance Types
+- AMIs
+- Volumes (EBS)
+- Snapshots
+- Load Balancers
+- Auto Scaling Groups
+
+═══════════════════════════════════════════════════════════════════════════
+
+PART 14: KEY CONCEPTS SUMMARY
+═══════════════════════════════════════════════════════════════════════════
+
+VPC (Virtual Private Cloud)
+- Your private network in AWS
+- Regional resource
+- Defined by CIDR block (e.g., 10.0.0.0/16)
+
+SUBNET
+- Subdivision of VPC
+- Availability Zone specific
+- Can be public or private (based on routing)
+
+INTERNET GATEWAY (IGW)
+- Enables internet access for VPC
+- 1:1 mapping with VPC
+- Required for public subnets
+
+ROUTE TABLE
+- Defines traffic routing rules
+- Each subnet associated with exactly one route table
+- Contains routes (destination → target)
+
+SECURITY GROUP
+- Instance-level firewall
+- Stateful (return traffic automatic)
+- Controls inbound/outbound ports
+
+NAT GATEWAY
+- Enables outbound internet for private instances
+- Blocks inbound internet connections
+- Must be in public subnet
+- Requires Elastic IP
+
+ELASTIC IP
+- Static public IPv4 address
+- Persists across stop/start
+- Charged when NOT attached to running instance
+
+PRIVATE IP
+- Internal to VPC
+- Can be duplicate across different VPCs
+- Not routable on internet
+
+PUBLIC IP
+- Internet-routable address
+- Can change on stop/start (unless Elastic IP)
+- Required for internet access
+
+═══════════════════════════════════════════════════════════════════════════
+
+FINAL NOTES
+═══════════════════════════════════════════════════════════════════════════
+
+REMEMBER:
+✓ Everything is private by default - you make it public by configuration
+✓ Network is about controlling traffic flow with routing rules
+✓ Always think: where is traffic coming from, where should it go?
+✓ Use private subnets for databases and internal services
+✓ Use public subnets only for load balancers and jump boxes
+✓ NAT Gateway costs money - delete after practice
+✓ Never use 0.0.0.0/0 for SSH in production - use specific IPs
+
+PRODUCTION BEST PRACTICES:
+- Multi-AZ deployment (at least 2 AZs)
+- Separate subnets for each tier (web, app, database)
+- Multiple NAT Gateways for HA (one per AZ)
+- Restrict security groups to minimum required access
+- Use bastion hosts for administrative access
+- Enable VPC Flow Logs for network monitoring
+- Tag all resources for cost tracking
+
+NEXT STEPS:
+- Practice this setup 2-3 times until it becomes muscle memory
+- Watch the recording and take notes
+- Use ChatGPT/Claude with transcript to generate detailed notes
+- Prepare for questions on networking concepts
+- Be ready for next class where we deploy applications on this VPC
+
+═══════════════════════════════════════════════════════════════════════════
+
+"Being curious is the only way to learn DevOps. Always ask questions. 
+If you don't get questions in your mind, you won't know how to connect 
+the dots. DevOps is all about connecting a bunch of dots together."
+- Akhilesh
+
+═══════════════════════════════════════════════════════════════════════════

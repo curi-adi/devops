@@ -1,0 +1,7 @@
+System Monitor Report
+=====================
+Uptime:  3:01
+Load Average: 0.14
+Memory Usage: 16.53%
+Disk Usage (/workspaces): 33%
+CPU Info:                           AMD EPYC 7763 64-Core Processor

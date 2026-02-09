@@ -1,0 +1,19 @@
+services:
+  flask-app:
+    image: python:3.9-slim
+    ports:
+      - "8080:5000"
+    volumes:
+      - ./flask-app.py:/app.py
+    working_dir: /
+    command: bash -c "pip install flask && python /app.py"
+    container_name: flask-app
+
+  log-generator:
+    image: python:3.9-slim
+    volumes:
+      - ./generator.py:/generator.py
+    command: bash -c "pip install requests && python /generator.py"
+    depends_on:
+      - flask-app
+    container_name: log-generator
