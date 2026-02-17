@@ -8,14 +8,9 @@ TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akhilesh Mishra &mdash; DevOps Engineer &amp; Educator</title>
+    <title>Aditya Shrivastava &mdash; Machine Learning Engineer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0f172a;
@@ -23,7 +18,7 @@ TEMPLATE = """
             line-height: 1.7;
         }
 
-        /* ── Nav ── */
+        /* -- Nav -- */
         nav {
             position: sticky;
             top: 0;
@@ -52,7 +47,7 @@ TEMPLATE = """
         }
         nav a:hover { color: #7dd3fc; }
 
-        /* ── Hero ── */
+        /* -- Hero -- */
         .hero {
             text-align: center;
             padding: 100px 24px 80px;
@@ -107,18 +102,10 @@ TEMPLATE = """
         .btn-primary { background: #7dd3fc; color: #0f172a; }
         .btn-outline { border: 1px solid #334155; color: #cbd5e1; }
 
-        /* ── Section shared ── */
+        /* -- Section shared -- */
         section { padding: 72px 24px; max-width: 900px; margin: 0 auto; }
-        .section-title {
-            font-size: 1.6rem;
-            color: #f1f5f9;
-            margin-bottom: 8px;
-        }
-        .section-sub {
-            color: #64748b;
-            font-size: 0.95rem;
-            margin-bottom: 40px;
-        }
+        .section-title { font-size: 1.6rem; color: #f1f5f9; margin-bottom: 8px; }
+        .section-sub { color: #64748b; font-size: 0.95rem; margin-bottom: 40px; }
         .divider {
             width: 44px; height: 3px;
             background: #7dd3fc;
@@ -126,7 +113,7 @@ TEMPLATE = """
             margin-bottom: 12px;
         }
 
-        /* ── Stats ── */
+        /* -- Stats -- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -153,7 +140,7 @@ TEMPLATE = """
             letter-spacing: 0.05em;
         }
 
-        /* ── About ── */
+        /* -- About -- */
         .about-text {
             color: #cbd5e1;
             font-size: 1.02rem;
@@ -162,7 +149,7 @@ TEMPLATE = """
         .about-text p { margin-bottom: 16px; }
         .about-text strong { color: #f1f5f9; }
 
-        /* ── Skills ── */
+        /* -- Skills -- */
         .skills-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -191,7 +178,7 @@ TEMPLATE = """
             border-radius: 6px;
         }
 
-        /* ── Projects ── */
+        /* -- Projects -- */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -212,7 +199,7 @@ TEMPLATE = """
         .project-card p { color: #64748b; font-size: 0.88rem; margin-bottom: 10px; }
         .project-card .stars { color: #7dd3fc; font-size: 0.82rem; }
 
-        /* ── Content / Writing ── */
+        /* -- Content / Writing -- */
         .writing-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -240,7 +227,7 @@ TEMPLATE = """
         .writing-card h4 { color: #f1f5f9; font-size: 0.95rem; margin-bottom: 6px; }
         .writing-card p { color: #64748b; font-size: 0.85rem; }
 
-        /* ── Connect ── */
+        /* -- Connect -- */
         .connect-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -262,7 +249,7 @@ TEMPLATE = """
         .connect-card:hover { border-color: #7dd3fc; background: #253347; }
         .connect-card .icon { font-size: 1.2rem; }
 
-        /* ── Footer ── */
+        /* -- Footer -- */
         footer {
             text-align: center;
             padding: 48px 24px;
@@ -272,7 +259,7 @@ TEMPLATE = """
         }
         footer a { color: #7dd3fc; text-decoration: none; }
 
-        /* ── Responsive ── */
+        /* -- Responsive -- */
         @media (max-width: 600px) {
             .hero h1 { font-size: 2.2rem; }
             nav ul { gap: 18px; }
@@ -281,7 +268,6 @@ TEMPLATE = """
 </head>
 <body>
 
-<!-- Nav -->
 <nav>
     <ul>
         <li><a href="#about">About</a></li>
@@ -292,235 +278,221 @@ TEMPLATE = """
     </ul>
 </nav>
 
-<!-- Hero -->
 <header class="hero">
-    <div class="badge">&#9679; AWS Community Builder</div>
-    <h1>Akhilesh <span>Mishra</span></h1>
-    <p class="subtitle">Senior DevOps Engineer &amp; Educator</p>
-    <p class="location">Noida / New Delhi, India &nbsp;&#8226;&nbsp; NIT Srinagar Alumni</p>
+    <div class="badge">&#9679; ML Engineer @ Accenture</div>
+    <h1>Aditya <span>Shrivastava</span></h1>
+    <p class="subtitle">Machine Learning & NLP Engineer | LLM Enthusiast</p>
+    <p class="location">Bengaluru, India &nbsp;&#8226;&nbsp; AI/ML Diploma, University of Hyderabad</p>
     <div class="cta-row">
-        <a href="https://livingdevops.com" class="btn btn-primary" target="_blank">LivingDevOps</a>
-        <a href="https://github.com/akhileshmishrabiz" class="btn btn-outline" target="_blank">GitHub</a>
-        <a href="https://topmate.io/akhilesh_mishra" class="btn btn-outline" target="_blank">Book a Session</a>
+        <a href="#connect" class="btn btn-primary">Connect</a>
+        <a href="#projects" class="btn btn-outline">Case Studies</a>
+        <a href="#about" class="btn btn-outline">About</a>
     </div>
 </header>
 
-<!-- Stats -->
 <section>
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="num">13+</div>
-            <div class="label">Years Experience</div>
+            <div class="num">4+ yrs</div>
+            <div class="label">ML Engineering</div>
         </div>
         <div class="stat-card">
-            <div class="num">800+</div>
-            <div class="label">Professionals Mentored</div>
+            <div class="num">30% faster</div>
+            <div class="label">Problem Resolution</div>
         </div>
         <div class="stat-card">
-            <div class="num">4.9</div>
-            <div class="label">Mentoring Rating</div>
+            <div class="num">PICS</div>
+            <div class="label">Patent Evaluation</div>
         </div>
         <div class="stat-card">
-            <div class="num">17K+</div>
-            <div class="label">Medium Followers</div>
+            <div class="num">639+</div>
+            <div class="label">Community Followers</div>
         </div>
     </div>
 </section>
 
-<!-- About -->
 <section id="about">
     <div class="divider"></div>
     <h2 class="section-title">About Me</h2>
-    <p class="section-sub">The story behind LivingDevOps</p>
+    <p class="section-sub">AI-driven reliability and operations</p>
     <div class="about-text">
         <p>
-            I started my career in <strong>Linux support</strong> and taught myself DevOps the hard way —
-            spending <strong>5&ndash;6 hours every day for five months</strong> learning Docker, cloud platforms,
-            and infrastructure tooling on my own. That grind landed me <strong>5 job offers</strong> and set the
-            foundation for everything that followed.
+            At <strong>Accenture</strong> I design and productionize ML systems that predict sensor failures. By
+            tightening data validation, crafting high-signal features, and testing models from logistic regression
+            through gradient boosting, I raised accuracy and trust in critical monitoring pipelines.
         </p>
         <p>
-            With <strong>13+ years of hands-on experience</strong> across AWS, GCP, and Azure, I now work as a
-            Senior DevOps Engineer. Along the way I grew my salary <strong>2.5x</strong> through deliberate
-            career moves — and documented the entire journey so others could learn from it.
+            Earlier at <strong>Cerner</strong> I built a Python-based NLP solution that cut problem resolution time
+            by <strong>30%</strong>. The POC, <strong>PICS (Problem Identification through Contextual Search)</strong>,
+            is integrated into Cerner's analytics platform <strong>MyJarvis</strong> and is under patent evaluation.
         </p>
         <p>
-            In 2024 I launched <strong>LivingDevOps</strong> to pass on what I wish someone had taught me earlier.
-            The platform runs intensive, <strong>80% hands-on</strong> bootcamps in AWS, Azure, and GCP, and I've
-            personally mentored over <strong>800 professionals</strong> into DevOps careers through bootcamps,
-            one-on-one sessions, and mock interviews.
+            I care about operational excellence: clear documentation, disciplined train/validation/test splits,
+            continuous performance monitoring, and close collaboration with domain experts to keep models aligned to
+            business outcomes.
         </p>
     </div>
 </section>
 
-<!-- Skills -->
 <section id="skills">
     <div class="divider"></div>
     <h2 class="section-title">Skills &amp; Tools</h2>
-    <p class="section-sub">The tech stack I work with daily</p>
+    <p class="section-sub">What I use to ship reliable ML</p>
     <div class="skills-grid">
         <div class="skill-card">
-            <h4>Cloud Platforms</h4>
+            <h4>Machine Learning</h4>
             <div class="tag-row">
-                <span class="tag">AWS</span>
-                <span class="tag">GCP</span>
-                <span class="tag">Azure</span>
+                <span class="tag">Logistic Regression</span>
+                <span class="tag">Decision Trees</span>
+                <span class="tag">Random Forests</span>
+                <span class="tag">Gradient Boosting</span>
             </div>
         </div>
         <div class="skill-card">
-            <h4>Infrastructure as Code</h4>
+            <h4>NLP &amp; GenAI</h4>
             <div class="tag-row">
-                <span class="tag">Terraform</span>
-                <span class="tag">Ansible</span>
-                <span class="tag">Packer</span>
-                <span class="tag">Kustomize</span>
+                <span class="tag">NLP</span>
+                <span class="tag">Text Classification</span>
+                <span class="tag">LLMs</span>
+                <span class="tag">Text2SQL</span>
+                <span class="tag">Generative AI</span>
             </div>
         </div>
         <div class="skill-card">
-            <h4>Containers &amp; Orchestration</h4>
+            <h4>Data Quality</h4>
             <div class="tag-row">
-                <span class="tag">Docker</span>
-                <span class="tag">Kubernetes</span>
-                <span class="tag">EKS</span>
-                <span class="tag">Helm</span>
-                <span class="tag">ArgoCD</span>
+                <span class="tag">Data Validation</span>
+                <span class="tag">Outlier Handling</span>
+                <span class="tag">Feature Selection</span>
+                <span class="tag">Feature Extraction</span>
+                <span class="tag">Train/Val/Test</span>
             </div>
         </div>
         <div class="skill-card">
-            <h4>CI / CD</h4>
-            <div class="tag-row">
-                <span class="tag">GitHub Actions</span>
-                <span class="tag">Jenkins</span>
-                <span class="tag">Tekton</span>
-            </div>
-        </div>
-        <div class="skill-card">
-            <h4>Monitoring &amp; Security</h4>
-            <div class="tag-row">
-                <span class="tag">Prometheus</span>
-                <span class="tag">Grafana</span>
-                <span class="tag">Vault</span>
-                <span class="tag">Keycloak</span>
-                <span class="tag">DevSecOps</span>
-            </div>
-        </div>
-        <div class="skill-card">
-            <h4>Scripting &amp; Serverless</h4>
+            <h4>Platforms &amp; Tools</h4>
             <div class="tag-row">
                 <span class="tag">Python</span>
-                <span class="tag">Bash</span>
-                <span class="tag">AWS Lambda</span>
-                <span class="tag">Serverless</span>
+                <span class="tag">SQL</span>
+                <span class="tag">Elasticsearch (Lucene)</span>
+                <span class="tag">Remedy Index</span>
+                <span class="tag">PowerShell</span>
+            </div>
+        </div>
+        <div class="skill-card">
+            <h4>MLOps &amp; Evaluation</h4>
+            <div class="tag-row">
+                <span class="tag">Performance Monitoring</span>
+                <span class="tag">Model Evaluation</span>
+                <span class="tag">Documentation</span>
+                <span class="tag">Reproducibility</span>
+            </div>
+        </div>
+        <div class="skill-card">
+            <h4>Operations</h4>
+            <div class="tag-row">
+                <span class="tag">Incident Response</span>
+                <span class="tag">Root Cause Analysis</span>
+                <span class="tag">Stakeholder Comms</span>
+                <span class="tag">Automation</span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Projects -->
 <section id="projects">
     <div class="divider"></div>
-    <h2 class="section-title">Open Source Projects</h2>
-    <p class="section-sub">Hands-on resources built for the community</p>
+    <h2 class="section-title">Case Studies</h2>
+    <p class="section-sub">Selected work from Accenture and Cerner</p>
     <div class="projects-grid">
-        <a href="https://github.com/akhileshmishrabiz/devops-zero-to-hero" class="project-card" target="_blank">
-            <h4>devops-zero-to-hero</h4>
-            <p>End-to-end DevOps learning path with real-world projects and automation scripts.</p>
-            <span class="stars">&#9733; 394 stars</span>
+        <a href="#!" class="project-card">
+            <h4>Sensor Failure Prediction</h4>
+            <p>Built robust validation, feature engineering, and ensemble models to forecast sensor outages with higher accuracy.</p>
+            <span class="stars">Accenture</span>
         </a>
-        <a href="https://github.com/akhileshmishrabiz/kubernetes-zero-to-hero" class="project-card" target="_blank">
-            <h4>kubernetes-zero-to-hero</h4>
-            <p>Kubernetes from fundamentals to production-grade EKS cluster setups.</p>
-            <span class="stars">&#9733; 37 stars</span>
+        <a href="#!" class="project-card">
+            <h4>PICS for MyJarvis</h4>
+            <p>Python NLP pipeline that identifies ticket trends, cutting TAT by 30%; integrated into Cerner's analytics stack.</p>
+            <span class="stars">Patent Evaluation</span>
         </a>
-        <a href="https://github.com/akhileshmishrabiz/practice-devops" class="project-card" target="_blank">
-            <h4>practice-devops</h4>
-            <p>Curated hands-on DevOps exercises to sharpen real skills.</p>
-            <span class="stars">&#9733; 30 stars</span>
+        <a href="#!" class="project-card">
+            <h4>Server Health Automation</h4>
+            <p>Automated health checks and incident playbooks, improving response times for critical systems.</p>
+            <span class="stars">Operations</span>
         </a>
-        <a href="https://github.com/akhileshmishrabiz/toffee-terraform-wrapper" class="project-card" target="_blank">
-            <h4>toffee-terraform-wrapper</h4>
-            <p>A Terraform tooling wrapper to simplify IaC workflows.</p>
-            <span class="stars">&#9733; 12 stars</span>
+        <a href="#!" class="project-card">
+            <h4>Text2SQL Experiments</h4>
+            <p>Explorations in translating natural language into SQL to accelerate analytics for stakeholders.</p>
+            <span class="stars">Research</span>
         </a>
     </div>
 </section>
 
-<!-- Writing -->
 <section id="writing">
     <div class="divider"></div>
-    <h2 class="section-title">Writing &amp; Content</h2>
-    <p class="section-sub">Teaching DevOps through real-world stories</p>
+    <h2 class="section-title">Writing &amp; Highlights</h2>
+    <p class="section-sub">Sharing learnings with the community</p>
     <div class="writing-grid">
-        <a href="https://medium.com/@akhilesh-mishra" class="writing-card" target="_blank">
-            <div class="platform-badge">Medium &middot; 17K+ Followers</div>
-            <h4>Living DevOps Publication</h4>
-            <p>In-depth articles on Docker, Terraform, IAM, and career growth in DevOps.</p>
+        <a href="#connect" class="writing-card">
+            <div class="platform-badge">LinkedIn &middot; 639+ Followers</div>
+            <h4>AI/ML Practice Notes</h4>
+            <p>Posts on model evaluation, data quality, and operationalizing ML systems.</p>
         </a>
-        <a href="https://akhileshmishra.substack.com" class="writing-card" target="_blank">
-            <div class="platform-badge">Substack &middot; 4K+ Subscribers</div>
-            <h4>DevOps with Akhilesh</h4>
-            <p>Weekly newsletter: real projects, industry insights, and curated job opportunities.</p>
+        <a href="#projects" class="writing-card">
+            <div class="platform-badge">Cerner &middot; MyJarvis</div>
+            <h4>PICS Patent Journey</h4>
+            <p>Documenting lessons from taking an NLP POC into production and patent review.</p>
         </a>
-        <a href="https://dev.to/livingdevops" class="writing-card" target="_blank">
-            <div class="platform-badge">DEV Community</div>
-            <h4>Technical Deep-Dives</h4>
-            <p>Tutorials on Terraform, GitHub Actions OIDC, Docker build optimization, and more.</p>
-        </a>
-        <a href="https://livingdevops.com" class="writing-card" target="_blank">
-            <div class="platform-badge">LivingDevOps &middot; Bootcamps</div>
-            <h4>AWS / Azure / GCP Bootcamps</h4>
-            <p>Intensive, hands-on bootcamps — 80% practice, real production scenarios.</p>
+        <a href="#projects" class="writing-card">
+            <div class="platform-badge">#Text2SQL</div>
+            <h4>Querying with Natural Language</h4>
+            <p>Experiments and commentary on bridging human questions to structured data retrieval.</p>
         </a>
     </div>
 </section>
 
-<!-- Connect -->
 <section id="connect">
     <div class="divider"></div>
     <h2 class="section-title">Connect</h2>
-    <p class="section-sub">Let's stay in touch</p>
+    <p class="section-sub">Links to reach Aditya (replace with your URLs)</p>
     <div class="connect-grid">
-        <a href="https://in.linkedin.com/in/akhilesh-mishra-0ab886124" class="connect-card" target="_blank">
+        <a href="#!" class="connect-card">
             <span class="icon">&#128188;</span> LinkedIn
         </a>
-        <a href="https://github.com/akhileshmishrabiz" class="connect-card" target="_blank">
-            <span class="icon">&#128196;</span> GitHub
+        <a href="#!" class="connect-card">
+            <span class="icon">&#128196;</span> GitHub / Projects
         </a>
-        <a href="https://x.com/livingdevops" class="connect-card" target="_blank">
-            <span class="icon">&#128227;</span> X (Twitter)
+        <a href="#!" class="connect-card">
+            <span class="icon">&#128231;</span> Email
         </a>
-        <a href="https://medium.com/@akhilesh-mishra" class="connect-card" target="_blank">
-            <span class="icon">&#9744;</span> Medium
+        <a href="#!" class="connect-card">
+            <span class="icon">&#128214;</span> Resume
         </a>
-        <a href="https://akhileshmishra.substack.com" class="connect-card" target="_blank">
-            <span class="icon">&#9993;</span> Substack
+        <a href="#!" class="connect-card">
+            <span class="icon">&#128227;</span> X / Twitter
         </a>
-        <a href="https://topmate.io/akhilesh_mishra" class="connect-card" target="_blank">
-            <span class="icon">&#128197;</span> Topmate
+        <a href="#!" class="connect-card">
+            <span class="icon">&#128197;</span> Book a Call
         </a>
-        <a href="https://livingdevops.com" class="connect-card" target="_blank">
-            <span class="icon">&#127891;</span> LivingDevOps
+        <a href="#!" class="connect-card">
+            <span class="icon">&#127891;</span> Certifications
         </a>
-        <a href="https://dev.to/livingdevops" class="connect-card" target="_blank">
-            <span class="icon">&#128189;</span> DEV Community
+        <a href="#!" class="connect-card">
+            <span class="icon">&#128196;</span> Case Studies
         </a>
     </div>
 </section>
 
-<!-- Footer -->
 <footer>
-    <p>&copy; 2026 Akhilesh Mishra &middot; <a href="https://livingdevops.com">livingdevops.com</a> &middot; Built with Flask &amp; Python</p>
+    <p>&copy; 2026 Aditya Shrivastava &middot; Built with Flask &amp; Python</p>
 </footer>
 
 </body>
 </html>
 """
 
-
 @app.route("/")
 def index():
     return render_template_string(TEMPLATE)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
