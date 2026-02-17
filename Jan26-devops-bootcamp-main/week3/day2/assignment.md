@@ -125,10 +125,11 @@ sleep 30
 pwd > /home/ec2-user/install-logs.txt
 sudo yum install git -y
 cd /home/ec2-user
-git clone https://github.com/YOUR_USERNAME/jan26-bootcamp.git
-cd jan26-bootcamp/week3/day1/app
+git clone https://github.com/curi-adi/devops.git
+cd Jan26-devops-bootcamp-main/week3/day1/app
 chmod u+x run.sh
 ./run.sh
+
 ```
 
 ### Step 3: Create Template
