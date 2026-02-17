@@ -15,7 +15,7 @@ echo "$(pwd) " >> /home/ec2-user/install.log
 
 
 echo "cloning code " >> /home/ec2-user/install.log
-git clone https://github.com/devopswithakhilesh/Jan26-devops-bootcamp
+git clone https://github.com/curi-adi/devops/tree/main/Jan26-devops-bootcamp-main
 
 cd Jan26-devops-bootcamp/week3/day2/app
 
