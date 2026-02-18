@@ -63,10 +63,10 @@ sudo yum install git -y
 
 # Clone repository
 cd /home/ec2-user
-git clone https://github.com/devopswithakhilesh/Jan26-devops-bootcamp.git
+git clone https://github.com/curi-adi/devops.git
 
 # Navigate to app directory
-cd Jan26-devops-bootcamp/week3/day1/app
+cd /home/ec2-user/devops/Jan26-devops-bootcamp-main/week3/day1/app
 
 # Make script executable and run
 chmod u+x run.sh
