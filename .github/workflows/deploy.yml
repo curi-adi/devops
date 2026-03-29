@@ -91,7 +91,10 @@ jobs:
 
       - name: Import ECR repo if it already exists
         working-directory: week6/infra
-        run: terraform import aws_ecr_repository.app_image aditya-bootcamp-student-portal 2>/dev/null || true
+        run: |
+          terraform state list 2>/dev/null | grep -q 'aws_ecr_repository.app_image' \
+            && echo "ECR already in state, skipping import" \
+            || terraform import aws_ecr_repository.app_image aditya-bootcamp-student-portal
 
       - name: Terraform Apply
         working-directory: week6/infra
