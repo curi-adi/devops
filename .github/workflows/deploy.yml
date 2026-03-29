@@ -24,7 +24,12 @@ jobs:
         run: |
           cd week6/app
           pip install -r requirements.txt
-          pip install pytest-flask
+          pip install pytest-flask flake8
+
+      - name: Lint with flake8
+        run: |
+          cd week6/app
+          flake8 app/ --max-line-length=120 --ignore=E501,W503
 
       - name: Run pytest
         run: |
