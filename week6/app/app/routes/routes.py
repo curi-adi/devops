@@ -18,7 +18,6 @@ def dashboard():
     today_attendance = Attendance.query.filter_by(date=today, status="Present").count()
 
     # Calculate total attendance rate
-    total_marked_days = Attendance.query.distinct(Attendance.date).count()
     total_present = Attendance.query.filter_by(status="Present").count()
     total_records = Attendance.query.count()
 
@@ -38,7 +37,7 @@ def dashboard():
     # Get upcoming assignments (due today or later, not completed)
     upcoming_assignments = Assignment.query.filter(
         Assignment.due_date >= today,
-        Assignment.is_completed == False
+        Assignment.is_completed.is_(False)
     ).order_by(Assignment.due_date.asc()).limit(5).all()
 
     return render_template(
@@ -122,7 +121,7 @@ def mark_attendance():
         db.session.commit()
         flash("Attendance marked successfully", "success")
         return redirect(url_for("main.attendance", date=attendance_date))
-    except Exception as e:
+    except Exception:
         flash("Error marking attendance", "error")
         return redirect(url_for("main.attendance"))
 
@@ -172,7 +171,7 @@ def add_class():
             db.session.commit()
             flash("Class added successfully!", "success")
             return redirect(url_for("main.classes"))
-        except Exception as e:
+        except Exception:
             flash("Error adding class.", "error")
             return redirect(url_for("main.add_class"))
     return render_template("add_class.html")
@@ -205,7 +204,7 @@ def edit_class(id):
             db.session.commit()
             flash("Class updated successfully!", "success")
             return redirect(url_for("main.classes"))
-        except Exception as e:
+        except Exception:
             flash("Error updating class.", "error")
 
     return render_template("edit_class.html", class_obj=class_obj)
@@ -218,10 +217,10 @@ def edit_class(id):
 def assignments():
     today = date.today()
     pending = Assignment.query.filter(
-        Assignment.is_completed == False
+        Assignment.is_completed.is_(False)
     ).order_by(Assignment.due_date.asc()).all()
     completed = Assignment.query.filter(
-        Assignment.is_completed == True
+        Assignment.is_completed.is_(True)
     ).order_by(Assignment.due_date.desc()).limit(10).all()
     return render_template("assignments.html", pending=pending, completed=completed, today=today)
 
