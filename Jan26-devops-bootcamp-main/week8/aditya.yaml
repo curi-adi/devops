@@ -1,0 +1,24 @@
+name: Aditya
+github: curi-adi
+email: aaditech00@gmail.com
+
+learning:
+  currently: DevOps Bootcamp
+  topics:
+    - AWS
+    - Terraform
+    - Docker
+    - CI/CD
+
+skills:
+  cloud: AWS
+  iac: Terraform
+  containers:
+    - Docker
+    - ECS Fargate
+  os: Windows
+
+traits:
+  - curious
+  - hands-on learner
+  - gets things done
