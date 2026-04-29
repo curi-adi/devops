@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+*.xlsx
+demo_instance_ids.txt
+.env
