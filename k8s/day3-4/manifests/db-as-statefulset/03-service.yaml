@@ -1,0 +1,15 @@
+# Headless service — clusterIP: None gives each pod a stable DNS name
+# Pod DNS: postgres-0.postgres.default.svc.cluster.local
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432

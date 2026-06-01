@@ -1,0 +1,27 @@
+# OOMKill demo — memory limit set intentionally low (50Mi)
+# When memory allocation exceeds limit, Kubernetes kills with exit code 137 (OOMKilled)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oom-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oom-demo
+  template:
+    metadata:
+      labels:
+        app: oom-demo
+    spec:
+      containers:
+      - name: oom-demo
+        image: python:3.11-slim
+        command: ["python3", "-c", "import time; time.sleep(3600)"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 50Mi

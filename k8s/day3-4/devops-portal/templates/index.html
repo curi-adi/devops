@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Portal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 40px 56px;
+      max-width: 540px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    h1 { color: #38bdf8; font-size: 22px; margin-bottom: 4px; }
+    .sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+    .row { margin: 14px 0; }
+    .label { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    .value { font-family: monospace; font-size: 16px; color: #f1f5f9; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .ok   { background: #10b981; color: #fff; }
+    .fail { background: #ef4444; color: #fff; }
+    .tip {
+      margin-top: 24px;
+      padding: 10px 14px;
+      border-left: 3px solid #38bdf8;
+      background: #0f172a;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .by { margin-top: 24px; font-size: 12px; color: #475569; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>DevOps Portal</h1>
+    <p class="sub">Aditya Shrivastava &nbsp;·&nbsp; K8s Day 3-4 Assignment</p>
+
+    <div class="row">
+      <div class="label">Pod Hostname</div>
+      <div class="value">{{ hostname }}</div>
+    </div>
+    <div class="row">
+      <div class="label">Pod IP</div>
+      <div class="value">{{ pod_ip }}</div>
+    </div>
+    <div class="row">
+      <div class="label">Database</div>
+      {% if db_ok %}
+        <span class="badge ok">Connected</span>
+      {% else %}
+        <span class="badge fail">{{ db_msg }}</span>
+      {% endif %}
+    </div>
+
+    <div class="tip">
+      💡 Delete a pod and refresh — hostname changes (self-healing).<br>
+      Watch <code>kubectl get hpa</code> while load testing.
+    </div>
+  </div>
+</body>
+</html>
