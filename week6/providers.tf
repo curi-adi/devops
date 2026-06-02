@@ -14,7 +14,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket  = "state-bucket-768093818017"
+    bucket  = "state-bucket-YOUR_ACCOUNT_ID"
     key     = "aditya/week6/terraform.tfstate"
     region  = "ap-south-1"
     encrypt = true

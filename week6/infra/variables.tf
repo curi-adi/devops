@@ -37,7 +37,7 @@ variable "prefix" {
 
 variable "image" {
   type    = string
-  default = "768093818017.dkr.ecr.ap-south-1.amazonaws.com/aditya-bootcamp-student-portal:1.0"
+  default = "YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/aditya-bootcamp-student-portal:1.0"
 }
 
 variable "container_port" {

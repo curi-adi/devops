@@ -16,7 +16,7 @@ spec:
       - name: ecr-secret
       containers:
       - name: flask-app
-        image: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
+        image: YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

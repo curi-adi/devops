@@ -5,10 +5,10 @@
 **Fix:** changed to `>= 1.12.1`
 
 ## 2. S3 state bucket missing
-Bucket `state-bucket-768093818017` was deleted after week 6 teardown.  
+Bucket `state-bucket-YOUR_ACCOUNT_ID` was deleted after week 6 teardown.  
 **Fix:** recreated manually before running `terraform init`
 ```
-aws s3api create-bucket --bucket state-bucket-768093818017 --region ap-south-1 \
+aws s3api create-bucket --bucket state-bucket-YOUR_ACCOUNT_ID --region ap-south-1 \
   --create-bucket-configuration LocationConstraint=ap-south-1
 ```
 

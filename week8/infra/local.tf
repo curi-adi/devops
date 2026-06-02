@@ -2,7 +2,7 @@ locals {
 
   # 2 ecs services
 
-  ecr_registry = "768093818017.dkr.ecr.ap-south-1.amazonaws.com"
+  ecr_registry = "YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com"
 
   ecs_services = [
     {

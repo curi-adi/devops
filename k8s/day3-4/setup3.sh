@@ -4,7 +4,7 @@ set -e
 
 export PATH="$PATH:/c/Users/ankit/AppData/Local/Microsoft/WinGet/Packages/Kubernetes.kind_Microsoft.Winget.Source_8wekyb3d8bbwe"
 
-AWS_ACCOUNT="768093818017"
+AWS_ACCOUNT="${AWS_ACCOUNT:?Error: export AWS_ACCOUNT=<your-12-digit-account-id> before running}"
 REGION="ap-south-1"
 CLUSTER_NAME="day3-4"
 

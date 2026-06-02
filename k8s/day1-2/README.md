@@ -89,14 +89,14 @@ aws ecr create-repository --repository-name kind-static-app --region ap-south-1
 docker build -t kindapp ./simpleapp
 
 # Tag for ECR
-docker tag kindapp 768093818017.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
+docker tag kindapp YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
 
 # Auth + push
 aws ecr get-login-password --region ap-south-1 \
   | docker login --username AWS --password-stdin \
-    768093818017.dkr.ecr.ap-south-1.amazonaws.com
+    YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
 
-docker push 768093818017.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
+docker push YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
 ```
 
 ---
@@ -105,7 +105,7 @@ docker push 768093818017.dkr.ecr.ap-south-1.amazonaws.com/kind-static-app:1.0
 ```bash
 # Create k8s secret so the cluster can pull from private ECR
 kubectl create secret docker-registry ecr-secret \
-  --docker-server=768093818017.dkr.ecr.ap-south-1.amazonaws.com \
+  --docker-server=YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com \
   --docker-username=AWS \
   --docker-password=$(aws ecr get-login-password --region ap-south-1) \
   --namespace=default

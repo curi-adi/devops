@@ -6,7 +6,7 @@ set -e
 # Add kind to PATH (winget install location)
 export PATH="$PATH:/c/Users/ankit/AppData/Local/Microsoft/WinGet/Packages/Kubernetes.kind_Microsoft.Winget.Source_8wekyb3d8bbwe"
 
-AWS_ACCOUNT="768093818017"
+AWS_ACCOUNT="${AWS_ACCOUNT:?Error: export AWS_ACCOUNT=<your-12-digit-account-id> before running}"
 REGION="ap-south-1"
 ECR_REPO="kind-static-app"
 ECR_URL="${AWS_ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com/${ECR_REPO}"
