@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply text-gray-900;
+  }
+
+  ::selection {
+    @apply bg-blue-100 text-blue-900;
+  }
+}

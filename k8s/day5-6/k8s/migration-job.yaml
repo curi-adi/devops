@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+  namespace: 3-tier-app-eks
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      initContainers:
+      - name: wait-for-db
+        image: busybox
+        command: ['sh', '-c', 'until nslookup devopsdozo-db.cv888mi0i0af.ap-south-1.rds.amazonaws.com; do echo waiting for database; sleep 2; done;']
+      containers:
+      - name: migration
+        image: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/devopsdozo:backend
+        command: ["bash", "-c", "./migrate.sh"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: DATABASE_URL
