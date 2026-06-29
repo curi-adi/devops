@@ -25,9 +25,6 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
   version    = "70.0.0"
 
   timeout = 1800
-  # Don't wait for pods to be ready — Prometheus takes 30+ min on t3.small
-  # which exceeds the EKS auth token TTL. Pods come up on their own.
-  wait = false
 
   values = [
     yamlencode({
