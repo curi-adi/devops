@@ -1,0 +1,60 @@
+name: EKS Infrastructure + K8s Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      infra_path:
+        description: "Path to the Terraform infrastructure directory"
+        required: true
+        type: choice
+        options:
+          - k8s/EKS/core-cluster
+          - k8s/EKS/k8s-services
+          - k8s/3-tier-app/infra
+
+      apply_destroy:
+        description: "Apply or destroy the infrastructure"
+        required: true
+        type: choice
+        options:
+          - apply
+          - destroy
+
+      aws_region:
+        description: "AWS region"
+        required: true
+        type: string
+        default: "ap-south-1"
+
+      terraform_version:
+        description: "Terraform version"
+        required: false
+        type: string
+        default: "1.12.1"
+
+jobs:
+  infra_apply_destroy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Initialize Terraform
+        working-directory: ${{ inputs.infra_path }}
+        run: terraform init
+
+      - name: Apply or Destroy Terraform
+        working-directory: ${{ inputs.infra_path }}
+        run: terraform ${{ inputs.apply_destroy }} --auto-approve

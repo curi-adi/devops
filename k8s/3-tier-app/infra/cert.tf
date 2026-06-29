@@ -1,3 +1,9 @@
+# Resolves the ALB hosted zone ID for the current region dynamically,
+# so this code is not locked to ap-south-1.
+data "aws_elb_hosted_zone_id" "alb" {
+  load_balancer_type = "application"
+}
+
 # pull the public hosted zone id from route 53
 data "aws_route53_zone" "main" {
   name         = var.domain_name
@@ -47,7 +53,7 @@ resource "aws_route53_record" "app" {
 
   alias {
     name                   = kubernetes_ingress_v1.app_ingress_tls.status[0].load_balancer[0].ingress[0].hostname
-    zone_id                = "ZP97RAFLXTNZK"
+    zone_id                = data.aws_elb_hosted_zone_id.alb.id
     evaluate_target_health = true
   }
 
