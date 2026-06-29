@@ -18,9 +18,9 @@ jobs:
     permissions:
       contents: read
     env:
-      frontend_image: 879381241087.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-frontend
+      frontend_image: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-frontend
       frontend_path: k8s/3-tier-app/app/frontend
-      backend_image: 879381241087.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-backend
+      backend_image: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-backend
       backend_path: k8s/3-tier-app/app/backend
       aws_region: ap-south-1
 
@@ -72,11 +72,11 @@ jobs:
       contents: write
     env:
       path: k8s/3-tier-app/k8s/menifests
-      backend_repo: 879381241087.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-backend
+      backend_repo: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-backend
       backend_tag: ${{ github.sha }}
-      frontend_repo: 879381241087.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-frontend
+      frontend_repo: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-frontend
       frontend_tag: ${{ github.sha }}
-      db_migration_repo: 879381241087.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-backend
+      db_migration_repo: 768093818017.dkr.ecr.ap-south-1.amazonaws.com/3tier-devopsdozo-backend
       db_migration_tag: ${{ github.sha }}
 
     steps:
