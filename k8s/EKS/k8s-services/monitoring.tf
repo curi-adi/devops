@@ -226,6 +226,18 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
       #   }
 
       # =======================
+      # Prometheus Operator
+      # =======================
+      prometheusOperator = {
+        admissionWebhooks = {
+          enabled = false
+          patch = {
+            enabled = false
+          }
+        }
+      }
+
+      # =======================
       # Node Exporter
       # =======================
       nodeExporter = {
