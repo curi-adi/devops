@@ -24,8 +24,10 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
   version    = "70.0.0"
 
-  # Timeout increased for t3.small nodes which are slow to schedule large pods
   timeout = 1800
+  # Don't wait for pods to be ready — Prometheus takes 30+ min on t3.small
+  # which exceeds the EKS auth token TTL. Pods come up on their own.
+  wait = false
 
   values = [
     yamlencode({
