@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K8s Day 5 & 6 — EKS Assignment Summary</title>
+  <style>
+    body {
+      font-family: Segoe UI, Arial, sans-serif;
+      background: #f4f6f9;
+      color: #222;
+      margin: 0;
+      padding: 32px;
+      line-height: 1.7;
+    }
+    h1 {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 24px 32px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    h1 span {
+      font-size: 0.55em;
+      font-weight: 400;
+      display: block;
+      margin-top: 4px;
+      color: #a8c8f0;
+    }
+    h2 {
+      color: #1a3a5c;
+      border-bottom: 2px solid #1a3a5c;
+      padding-bottom: 6px;
+      margin-top: 40px;
+    }
+    h3 {
+      color: #2c5f8a;
+      margin-top: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px 28px;
+      margin: 16px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .badge {
+      display: inline-block;
+      background: #27ae60;
+      color: #fff;
+      font-size: 0.78em;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+    th {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e0e6ed;
+    }
+    tr:nth-child(even) td {
+      background: #f0f4f8;
+    }
+    code {
+      background: #eef2f7;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #1e2a38;
+      color: #c8d8e8;
+      border-radius: 6px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: Consolas, monospace;
+      font-size: 0.88em;
+    }
+    .error-block {
+      background: #fff8f0;
+      border-left: 4px solid #e67e22;
+      border-radius: 0 6px 6px 0;
+      padding: 14px 20px;
+      margin: 12px 0;
+    }
+    .error-block .fix {
+      background: #f0fff4;
+      border-left: 4px solid #27ae60;
+      border-radius: 0 6px 6px 0;
+      padding: 10px 16px;
+      margin-top: 10px;
+    }
+    .error-block strong.label {
+      font-size: 0.8em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .error-label { color: #c0392b; }
+    .fix-label { color: #1e8449; }
+    ul li { margin-bottom: 6px; }
+    .section-intro {
+      color: #555;
+      font-size: 0.97em;
+      margin-bottom: 16px;
+    }
+    .stack-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin: 10px 0;
+    }
+    .step-num {
+      background: #1a3a5c;
+      color: #fff;
+      border-radius: 50%;
+      min-width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9em;
+      margin-top: 2px;
+    }
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      color: #999;
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+
+<h1>
+  Kubernetes Day 5 &amp; 6 — EKS Assignment Summary
+  <span>Aditya Shrivastava &nbsp;|&nbsp; DevOps Bootcamp &nbsp;|&nbsp; Completed: 2026-06-27</span>
+</h1>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>1. Overview</h2>
+<div class="card">
+  <p>This assignment deployed a <strong>production-style 3-tier web application</strong> on AWS EKS (Elastic Kubernetes Service). The goal was to move from local Kind clusters to real cloud infrastructure, add monitoring, and set up GitOps-style continuous delivery with ArgoCD.</p>
+  <table>
+    <tr><th>Item</th><th>Detail</th></tr>
+    <tr><td>AWS Account</td><td><code>768093818017</code></td></tr>
+    <tr><td>Region</td><td><code>ap-south-1</code> (Mumbai)</td></tr>
+    <tr><td>EKS Cluster</td><td><code>eks-cluster</code></td></tr>
+    <tr><td>Node Type</td><td><code>t3.small</code> &times; 3 nodes</td></tr>
+    <tr><td>App URL</td><td><code>https://devopsdozo.adishrivtech.in</code></td></tr>
+    <tr><td>ArgoCD URL</td><td><code>https://argocd.devopsdozo.adishrivtech.in</code></td></tr>
+    <tr><td>Source Repo</td><td><code>curi-adi/devops</code> (branch: main)</td></tr>
+    <tr><td>Reference Repo</td><td><code>akhileshmishrabiz/k8s-may26</code></td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>2. Architecture</h2>
+<div class="card">
+  <p class="section-intro">The app follows a 3-tier pattern: React frontend → Flask backend → PostgreSQL database, all running in Kubernetes on EKS, exposed via an AWS Application Load Balancer.</p>
+
+  <h3>Infrastructure Stack</h3>
+  <div class="stack-step"><div class="step-num">1</div><div><strong>VPC &amp; Networking</strong> — Custom VPC (<code>vpc-0fe7d1c6b5c50c3ef</code>), public/private subnets, NAT gateway — created via Terraform (<code>k8s/EKS/core-cluster/</code>)</div></div>
+  <div class="stack-step"><div class="step-num">2</div><div><strong>EKS Cluster</strong> — Managed Kubernetes cluster with 3 × t3.small worker nodes (3 nodes required due to the 11-pod-per-node limit on t3.small)</div></div>
+  <div class="stack-step"><div class="step-num">3</div><div><strong>AWS Load Balancer Controller</strong> — Installed via Helm; allows EKS to provision AWS ALBs from Kubernetes Ingress objects</div></div>
+  <div class="stack-step"><div class="step-num">4</div><div><strong>ArgoCD</strong> — GitOps delivery tool installed via Helm; watches the GitHub repo and syncs Kubernetes manifests automatically</div></div>
+  <div class="stack-step"><div class="step-num">5</div><div><strong>Monitoring</strong> — Prometheus + Grafana + Loki stack installed via Helm in the <code>monitoring</code> namespace</div></div>
+  <div class="stack-step"><div class="step-num">6</div><div><strong>RDS PostgreSQL</strong> — Managed Postgres 15.13 on <code>db.t3.micro</code>; created manually (not in Terraform state)</div></div>
+  <div class="stack-step"><div class="step-num">7</div><div><strong>ECR</strong> — Docker images stored in ECR: <code>768093818017.dkr.ecr.ap-south-1.amazonaws.com/devopsdozo</code> (tags: <code>backend</code>, <code>frontend</code>)</div></div>
+
+  <h3>Kubernetes Namespace &amp; Manifests</h3>
+  <table>
+    <tr><th>Manifest</th><th>Purpose</th></tr>
+    <tr><td><code>namespace.yaml</code></td><td>Creates <code>3-tier-app-eks</code> namespace</td></tr>
+    <tr><td><code>configmap.yaml</code></td><td>App config (DB URL, env vars)</td></tr>
+    <tr><td><code>secrets.yaml</code></td><td>DB credentials</td></tr>
+    <tr><td><code>backend.yaml</code></td><td>Flask API deployment + service (port 8000)</td></tr>
+    <tr><td><code>frontend.yaml</code></td><td>React app deployment + service (port 80)</td></tr>
+    <tr><td><code>ingress-https.yaml</code></td><td>ALB ingress with TLS termination (ACM cert)</td></tr>
+    <tr><td><code>migration-job.yaml</code></td><td>Kubernetes Job to run DB migrations once at deploy time</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>3. What Was Done &amp; Why</h2>
+<div class="card">
+
+  <h3>Terraform Split into Two Modules</h3>
+  <p>Infrastructure is split into two separate Terraform roots:</p>
+  <ul>
+    <li><code>core-cluster/</code> — VPC, subnets, EKS cluster, node groups. Changes here are rare and costly.</li>
+    <li><code>k8s-services/</code> — Helm releases (ArgoCD, monitoring, LB controller), Route53 records, ACM certs. Changes here are frequent.</li>
+  </ul>
+  <p><strong>Why split:</strong> Running a single <code>terraform apply</code> on everything would recreate the cluster on minor service changes. The split means cluster rebuilds are opt-in.</p>
+
+  <h3>3 Worker Nodes Instead of 1 or 2</h3>
+  <p>t3.small instances support a maximum of 11 pods per node (AWS ENI limit). The full stack (system pods + monitoring + ArgoCD + app pods) needed more than 11 pods total, so 3 nodes were used to spread the load.</p>
+
+  <h3>DB Migration as a Kubernetes Job</h3>
+  <p>Initially the migration script was part of the container's startup command (<code>CMD</code>). This caused problems: if a pod restarted, migrations ran again and sometimes failed. Moving it to a dedicated Kubernetes Job means it runs once, completes, and does not run again on pod restarts.</p>
+
+  <h3>Prometheus &amp; Grafana Resource Reduction</h3>
+  <p>The default Helm chart values for Prometheus requested 2GB of memory — far too much for t3.small nodes (which only have 2GB total). Resource requests were reduced: Prometheus to 512Mi, Grafana to 256Mi, and the Helm install timeout was extended to 900 seconds to allow pods time to schedule.</p>
+
+  <h3>Terraform State in S3</h3>
+  <p>Remote state stored in S3 bucket <code>state-bucket-768093818017</code> with two keys:</p>
+  <ul>
+    <li><code>eks-may-2026/eks-core-cluster/terraform.tfstate</code></li>
+    <li><code>eks-may-2026/k8s-services/terraform.tfstate</code></li>
+  </ul>
+  <p>This allows team members (and future sessions) to share the same state without conflicts.</p>
+
+  <h3>ACM Certificates</h3>
+  <p>Two separate ACM certificates were created — one for the main app domain and one for ArgoCD — because they are managed by different Terraform modules and ALBs.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>4. Errors Encountered &amp; Fixes</h2>
+<div class="card section-intro">Every error below was hit during the actual assignment. These are real fixes, not theoretical ones.</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 1 — Windows CRLF Breaking Shell Script in Container</strong>
+  <p>The <code>migrate.sh</code> database migration script was written on Windows, which saved it with <code>\r\n</code> (CRLF) line endings. When the Linux container tried to execute it, bash read the <code>\r</code> as part of the command and threw:</p>
+  <pre>bash: $'\r': command not found</pre>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Added a <code>sed</code> stripping step in the Dockerfile, before the script is executed:</p>
+    <pre>RUN sed -i 's/\r//' migrate.sh</pre>
+    <p>This strips all carriage return characters from the script at image build time, making it safe to run on Linux regardless of how the file was edited on Windows.</p>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 2 — t3.small Pod Limit Exceeded (Pending Pods)</strong>
+  <p>Pods kept staying in <code>Pending</code> state with the event:</p>
+  <pre>0/2 nodes are available: 2 Too many pods.</pre>
+  <p>AWS limits t3.small to 11 pods per node due to ENI/IP constraints. With 2 nodes, system pods alone consumed most of the capacity.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Increased the node group from 2 to 3 nodes in the Terraform EKS config. 3 nodes gave 33 pod slots, enough to run all system, monitoring, ArgoCD, and app pods comfortably.</p>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 3 — Prometheus Helm Install Timeout / OOMKilled</strong>
+  <p>The default Prometheus Helm chart requested 2Gi memory, which exceeded what a t3.small node could provide. Install would timeout, and pods would be OOMKilled or stay in <code>Pending</code>.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Overrode resource values in the Helm values file:</p>
+    <pre>prometheus:
+  server:
+    resources:
+      requests:
+        memory: "512Mi"
+grafana:
+  resources:
+    requests:
+      memory: "256Mi"</pre>
+    <p>Also increased the Helm install timeout to 900 seconds (<code>--timeout 900s</code>) to give pods time to pull images and start on constrained nodes.</p>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 4 — Helm "Cannot Re-use a Name That Is Still in Use"</strong>
+  <p>After a failed Helm install, retrying gave:</p>
+  <pre>Error: cannot re-use a name that is still in use</pre>
+  <p>Helm stores release state as a Kubernetes Secret. A failed install leaves behind a secret in a failed state, blocking reinstall.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Delete the stuck Helm release secret manually, then re-run the install:</p>
+    <pre>kubectl delete secret sh.helm.release.v1.&lt;release-name&gt;.v1 -n &lt;namespace&gt;</pre>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 5 — Terraform State Lock Not Released</strong>
+  <p>After a cancelled or failed <code>terraform apply</code>, subsequent runs failed with a state lock error, preventing any further Terraform operations.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Deleted the lock file directly from S3:</p>
+    <pre>aws s3 rm s3://state-bucket-768093818017/eks-may-2026/k8s-services/terraform.tfstate.tflock</pre>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 6 — ECR Docker Login Failing on Windows PowerShell</strong>
+  <p>The standard Linux pipe approach for ECR login:</p>
+  <pre>aws ecr get-login-password | docker login --username AWS --password-stdin &lt;url&gt;</pre>
+  <p>Did not work reliably in Windows PowerShell due to how PowerShell handles piped stdin to native executables.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Used a variable instead of a pipe:</p>
+    <pre>$token = aws ecr get-login-password --region ap-south-1
+docker login --username AWS --password $token 768093818017.dkr.ecr.ap-south-1.amazonaws.com</pre>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 7 — ALB Route53 Alias Needs Hardcoded Hosted Zone ID</strong>
+  <p>When creating a Route53 alias record pointing to the ALB for ArgoCD, Terraform's <code>aws_lb</code> data source does not always expose the ALB's hosted zone ID, or the value is not available at plan time.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Hardcoded the hosted zone ID for <code>ap-south-1</code> ALBs in <code>argocd.tf</code>:</p>
+    <pre>zone_id = "ZP97RAFLXTNZK"  # ap-south-1 ALB hosted zone ID</pre>
+    <p>This is a static AWS value that does not change for a given region.</p>
+  </div>
+</div>
+
+<div class="error-block">
+  <strong class="label error-label">Error 8 — DB Migration Running on Every Pod Restart</strong>
+  <p>Migration was originally placed in the container's <code>CMD</code>. Every time a pod restarted (due to a crash, rolling update, or scaling), the migration ran again — causing errors when it tried to re-create already-existing tables.</p>
+  <div class="fix">
+    <strong class="label fix-label">Fix</strong>
+    <p>Moved the migration into a dedicated Kubernetes <code>Job</code> (<code>migration-job.yaml</code>). A Job runs to completion once and does not re-run on pod restarts. The application deployment was updated to remove the migration from its startup command.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>5. Deployment Order</h2>
+<div class="card">
+  <p>Order matters — each step depends on the previous one being ready.</p>
+  <ol>
+    <li><code>terraform apply</code> in <code>k8s/EKS/core-cluster/</code> — creates VPC + EKS cluster</li>
+    <li><code>terraform apply</code> in <code>k8s/EKS/k8s-services/</code> — installs ArgoCD, monitoring, LB controller, Route53 records</li>
+    <li>Create RDS instance manually: identifier <code>devopsdozo-db</code>, Postgres 15.13, <code>db.t3.micro</code></li>
+    <li><code>kubectl apply</code> manifests in this order:
+      <ol type="a">
+        <li><code>namespace.yaml</code></li>
+        <li><code>configmap.yaml</code></li>
+        <li><code>secrets.yaml</code></li>
+        <li><code>backend.yaml</code></li>
+        <li><code>frontend.yaml</code></li>
+        <li><code>ingress-https.yaml</code></li>
+        <li><code>migration-job.yaml</code></li>
+      </ol>
+    </li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>6. Destroy Order</h2>
+<div class="card">
+  <p>Reverse of creation — must be done in this order to avoid orphaned AWS resources that block deletion.</p>
+  <ol>
+    <li><code>kubectl delete namespace 3-tier-app-eks</code> — removes ALB and app pods first</li>
+    <li>Delete Route53 A record for <code>devopsdozo.adishrivtech.in</code> manually in AWS Console</li>
+    <li>Delete ACM certificate for <code>devopsdozo.adishrivtech.in</code> manually</li>
+    <li>Delete RDS instance <code>devopsdozo-db</code> manually</li>
+    <li><code>terraform destroy</code> in <code>k8s/EKS/k8s-services/</code></li>
+    <li><code>terraform destroy</code> in <code>k8s/EKS/core-cluster/</code></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>7. Key Resource Reference</h2>
+<div class="card">
+  <table>
+    <tr><th>Resource</th><th>Value</th></tr>
+    <tr><td>VPC</td><td><code>vpc-0fe7d1c6b5c50c3ef</code></td></tr>
+    <tr><td>ECR Repo</td><td><code>768093818017.dkr.ecr.ap-south-1.amazonaws.com/devopsdozo</code></td></tr>
+    <tr><td>RDS Endpoint</td><td><code>devopsdozo-db.cv888mi0i0af.ap-south-1.rds.amazonaws.com</code></td></tr>
+    <tr><td>RDS User / DB</td><td><code>postgres</code> / <code>postgres</code></td></tr>
+    <tr><td>ACM Cert (app)</td><td><code>arn:aws:acm:ap-south-1:768093818017:certificate/3c5b07b1-19f2-4a29-8eb0-0c32c76e55b6</code></td></tr>
+    <tr><td>State Bucket</td><td><code>state-bucket-768093818017</code></td></tr>
+    <tr><td>ALB Hosted Zone (ap-south-1)</td><td><code>ZP97RAFLXTNZK</code></td></tr>
+    <tr><td>K8s Namespace</td><td><code>3-tier-app-eks</code></td></tr>
+    <tr><td>App Files Path</td><td><code>D:\deeplearning\devops-main\devops-main\k8s\</code></td></tr>
+  </table>
+</div>
+
+<footer>
+  Aditya Shrivastava &nbsp;|&nbsp; DevOps Bootcamp &nbsp;|&nbsp; K8s Day 5 &amp; 6 &nbsp;|&nbsp; Generated 2026-06-29
+</footer>
+
+</body>
+</html>
