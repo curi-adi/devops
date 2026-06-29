@@ -51,6 +51,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws_region }}
 
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name eks-cluster --region ${{ inputs.aws_region }}
+
       - name: Initialize Terraform
         working-directory: ${{ inputs.infra_path }}
         run: terraform init

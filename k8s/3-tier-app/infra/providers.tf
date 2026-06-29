@@ -2,28 +2,15 @@ provider "aws" {
   region = "ap-south-1"
 }
 
+# Uses ~/.kube/config which is set up by aws eks update-kubeconfig in the workflow.
+# The kubeconfig exec authenticator calls aws eks get-token on every API call,
+# so the token never expires during long Helm installs.
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name, "--region", "ap-south-1"]
-  }
+  config_path = "~/.kube/config"
 }
 
 provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name, "--region", "ap-south-1"]
-    }
+  kubernetes = {
+    config_path = "~/.kube/config"
   }
 }
-
-
