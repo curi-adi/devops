@@ -24,8 +24,8 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
   version    = "70.0.0"
 
-  # Timeout increased for initial setup
-  timeout = 900
+  # Timeout increased for t3.small nodes which are slow to schedule large pods
+  timeout = 1800
 
   values = [
     yamlencode({
