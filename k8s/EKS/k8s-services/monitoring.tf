@@ -36,12 +36,12 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
           # Resource requests and limits
           resources = {
             requests = {
-              cpu    = "200m"
-              memory = "512Mi"
-            }
-            limits = {
               cpu    = "500m"
               memory = "1Gi"
+            }
+            limits = {
+              cpu    = "1000m"
+              memory = "2Gi"
             }
           }
           # Data retention
@@ -98,12 +98,12 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
         # Resource requests and limits
         resources = {
           requests = {
-            cpu    = "100m"
-            memory = "256Mi"
+            cpu    = "250m"
+            memory = "512Mi"
           }
           limits = {
-            cpu    = "300m"
-            memory = "512Mi"
+            cpu    = "500m"
+            memory = "1Gi"
           }
         }
 
@@ -129,7 +129,16 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
           }
         }
 
-        additionalDataSources = []
+        additionalDataSources = [
+          {
+            name      = "Loki"
+            type      = "loki"
+            access    = "proxy"
+            url       = "http://loki.monitoring.svc.cluster.local:3100"
+            isDefault = false
+            editable  = true
+          }
+        ]
 
         # Pre-configured dashboards
         # dashboardProviders = {
@@ -218,18 +227,6 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
       # =======================
       # Prometheus Operator
       # =======================
-      prometheusOperator = {
-        tls = {
-          enabled = false
-        }
-        admissionWebhooks = {
-          enabled = false
-          patch = {
-            enabled = false
-          }
-        }
-      }
-
       # =======================
       # Node Exporter
       # =======================
@@ -369,18 +366,95 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
 # }
 
 # ============================================================================
-# Loki disabled — t3.small nodes hit 11-pod limit; DaemonSet promtails can't schedule
+# Loki - Log aggregation (with Promtail as the log collector)
 # ============================================================================
-# resource "helm_release" "loki" {
-#   name       = "loki"
-#   repository = "https://grafana.github.io/helm-charts"
-#   chart      = "loki-stack"
-#   namespace  = kubernetes_namespace.monitoring.metadata[0].name
-#   version    = "2.10.2"
-#   timeout = 600
-#   values = [yamlencode({ loki = { enabled = true } })]
-#   depends_on = [kubernetes_namespace.monitoring, helm_release.kube_prometheus_grafana_stack]
-# }
+resource "helm_release" "loki" {
+  name       = "loki"
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "loki-stack"
+  namespace  = kubernetes_namespace.monitoring.metadata[0].name
+  version    = "2.10.2"
+
+  timeout = 600
+
+  values = [
+    yamlencode({
+      loki = {
+        enabled = true
+
+        persistence = {
+          enabled          = true
+          storageClassName = "gp2"
+          accessModes      = ["ReadWriteOnce"]
+          size             = "20Gi"
+        }
+
+        config = {
+          table_manager = {
+            retention_deletes_enabled = true
+            retention_period          = "168h"
+          }
+        }
+
+        resources = {
+          requests = {
+            cpu    = "200m"
+            memory = "512Mi"
+          }
+          limits = {
+            cpu    = "500m"
+            memory = "1Gi"
+          }
+        }
+
+        service = {
+          type = "ClusterIP"
+          port = 3100
+        }
+      }
+
+      promtail = {
+        enabled = true
+
+        config = {
+          clients = [
+            {
+              url = "http://loki:3100/loki/api/v1/push"
+            }
+          ]
+        }
+
+        resources = {
+          requests = {
+            cpu    = "100m"
+            memory = "128Mi"
+          }
+          limits = {
+            cpu    = "200m"
+            memory = "256Mi"
+          }
+        }
+      }
+
+      grafana = {
+        enabled = false
+      }
+
+      prometheus = {
+        enabled = false
+      }
+
+      fluent-bit = {
+        enabled = false
+      }
+    })
+  ]
+
+  depends_on = [
+    kubernetes_namespace.monitoring,
+    helm_release.kube_prometheus_grafana_stack,
+  ]
+}
 
 # ============================================================================
 # Ingress for Prometheus UI (Optional - for debugging)
