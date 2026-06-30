@@ -229,6 +229,9 @@ resource "helm_release" "kube_prometheus_grafana_stack" {
       # Prometheus Operator
       # =======================
       prometheusOperator = {
+        tls = {
+          enabled = false
+        }
         admissionWebhooks = {
           enabled = false
           patch = {
