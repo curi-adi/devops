@@ -52,7 +52,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name eks-cluster --region ${{ inputs.aws_region }}
+        run: aws eks update-kubeconfig --name eks-cluster --region ${{ inputs.aws_region }} || true
 
       - name: Initialize Terraform
         working-directory: ${{ inputs.infra_path }}
