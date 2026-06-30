@@ -54,16 +54,17 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name eks-cluster --region ${{ inputs.aws_region }} || true
 
-      - name: Pre-destroy cleanup (remove stuck finalizers)
+      - name: Pre-destroy cleanup (delete Ingresses before LB controller is removed)
         if: ${{ inputs.apply_destroy == 'destroy' }}
         run: |
-          # Remove elbv2 finalizers from targetgroupbindings so ArgoCD Ingress can be deleted
-          # before the LB controller helm release is destroyed
-          for ns in argocd 3-tier-app-eks; do
-            for tgb in $(kubectl get targetgroupbindings.elbv2.k8s.aws -n $ns -o name 2>/dev/null); do
-              kubectl patch $tgb -n $ns --type=json -p='[{"op":"remove","path":"/metadata/finalizers"}]' 2>/dev/null || true
-            done
+          # Delete all Ingress resources FIRST so the running LB controller cleanly
+          # deprovisions the ALBs before the LB controller helm release is destroyed.
+          # This avoids the 20-minute ALB drain wait that happens when both are deleted together.
+          for ns in argocd 3-tier-app-eks monitoring; do
+            kubectl delete ingress --all -n $ns --timeout=300s 2>/dev/null || true
           done
+          # Wait briefly for ALBs to deprovision
+          sleep 30
 
       - name: Initialize Terraform
         working-directory: ${{ inputs.infra_path }}
