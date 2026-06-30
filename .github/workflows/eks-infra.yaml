@@ -54,17 +54,23 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name eks-cluster --region ${{ inputs.aws_region }} || true
 
-      - name: Pre-destroy cleanup (delete Ingresses before LB controller is removed)
+      - name: Pre-destroy cleanup (delete Ingresses and wait for ALBs to deprovision)
         if: ${{ inputs.apply_destroy == 'destroy' }}
         run: |
-          # Delete all Ingress resources FIRST so the running LB controller cleanly
-          # deprovisions the ALBs before the LB controller helm release is destroyed.
-          # This avoids the 20-minute ALB drain wait that happens when both are deleted together.
+          # Delete Ingresses without waiting — LB controller will start ALB cleanup
           for ns in argocd 3-tier-app-eks monitoring; do
-            kubectl delete ingress --all -n $ns --timeout=300s 2>/dev/null || true
+            kubectl delete ingress --all -n $ns --wait=false 2>/dev/null || true
           done
-          # Wait briefly for ALBs to deprovision
-          sleep 30
+          # Poll until all ALBs are gone (LB controller must finish before terraform destroy)
+          echo "Waiting for ALBs to be fully deprovisioned..."
+          for i in $(seq 1 36); do
+            count=$(aws elbv2 describe-load-balancers --region ${{ inputs.aws_region }} \
+              --query "length(LoadBalancers)" --output text 2>/dev/null || echo "0")
+            if [ "$count" = "0" ] || [ "$count" = "None" ]; then
+              echo "All ALBs deleted. Proceeding with terraform destroy."; break
+            fi
+            echo "[$i/36] $count ALB(s) still deleting, waiting 10s..."; sleep 10
+          done
 
       - name: Initialize Terraform
         working-directory: ${{ inputs.infra_path }}
