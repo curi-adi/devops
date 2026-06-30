@@ -77,5 +77,42 @@ jobs:
         run: terraform init
 
       - name: Apply or Destroy Terraform
+        if: ${{ inputs.apply_destroy == 'destroy' || inputs.infra_path == 'k8s/EKS/core-cluster' }}
         working-directory: ${{ inputs.infra_path }}
         run: terraform ${{ inputs.apply_destroy }} --auto-approve
+
+      - name: Apply Terraform with live pod monitoring
+        if: ${{ inputs.apply_destroy == 'apply' && inputs.infra_path != 'k8s/EKS/core-cluster' }}
+        working-directory: ${{ inputs.infra_path }}
+        run: |
+          # Run terraform apply in the background
+          terraform apply --auto-approve &
+          TF_PID=$!
+
+          echo "Terraform running (PID $TF_PID). Polling pod status every 60s..."
+          echo ""
+
+          # Poll pod status every 60s while terraform is running
+          while kill -0 $TF_PID 2>/dev/null; do
+            echo "========================================================"
+            echo "POD STATUS at $(date '+%H:%M:%S')"
+            echo "========================================================"
+            kubectl get pods --all-namespaces 2>/dev/null || echo "(cluster not ready yet)"
+            echo ""
+            kubectl get nodes 2>/dev/null || true
+            echo ""
+            sleep 60
+          done
+
+          # Get terraform exit code
+          wait $TF_PID
+          TF_EXIT=$?
+
+          echo "========================================================"
+          echo "FINAL POD STATUS"
+          echo "========================================================"
+          kubectl get pods --all-namespaces -o wide 2>/dev/null || true
+          echo ""
+          kubectl get nodes -o wide 2>/dev/null || true
+
+          exit $TF_EXIT
