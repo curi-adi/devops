@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>K8s Assignment Day 7-10</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 980px; margin: 40px auto; color: #222; }
+    h1 { background: #1a1a2e; color: #fff; padding: 20px; border-radius: 8px; }
+    h2 { background: #16213e; color: #e2e2e2; padding: 10px 16px; border-radius: 6px; margin-top: 40px; }
+    h3 { color: #0f3460; border-bottom: 2px solid #0f3460; padding-bottom: 4px; margin-top: 28px; }
+    .cmd { background: #1e1e1e; color: #00ff99; font-family: monospace; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin: 8px 0; }
+    .output { background: #0d0d0d; color: #ccc; font-family: monospace; padding: 12px 16px; border-radius: 6px; font-size: 12px; white-space: pre; margin: 4px 0 16px; overflow-x: auto; }
+    .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 16px; margin: 10px 0; border-radius: 4px; font-size: 13px; }
+    .success { background: #d4edda; border-left: 4px solid #28a745; padding: 10px 16px; margin: 10px 0; border-radius: 4px; font-size: 13px; }
+    .avail { background: #e8f5e9; border-left: 4px solid #4caf50; padding: 10px 16px; margin: 10px 0; border-radius: 4px; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th { background: #0f3460; color: #fff; padding: 8px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+    tr:nth-child(even) { background: #f5f5f5; }
+    .badge-up   { display:inline-block; background:#28a745; color:#fff; border-radius:4px; padding:1px 8px; font-size:11px; font-family:monospace; }
+    .badge-done { display:inline-block; background:#0f3460; color:#fff; border-radius:4px; padding:1px 8px; font-size:11px; font-family:monospace; }
+  </style>
+</head>
+<body>
+
+<h1>Kubernetes Microservices &amp; Helm Deployment<br>
+<small style="font-size:14px;font-weight:normal;">DevOps Bootcamp — Day 7-10 Assignment</small></h1>
+
+<p><strong>Name:</strong> Aditya Shrivastava &nbsp;|&nbsp; <strong>GitHub:</strong> curi-adi/devops &nbsp;|&nbsp; <strong>Date:</strong> July 2026</p>
+
+<!-- ===================================================== -->
+<h2>Section 1: Microservices — Docker Compose (Day 7)</h2>
+<!-- ===================================================== -->
+
+<h3>1.1 Stack Overview</h3>
+<table>
+  <tr><th>Component</th><th>Technology</th><th>Port</th><th>Purpose</th></tr>
+  <tr><td>product-service</td><td>Go</td><td>8001</td><td>Product catalog CRUD</td></tr>
+  <tr><td>user-service</td><td>Node.js</td><td>8002</td><td>Auth, JWT, user management</td></tr>
+  <tr><td>cart-service</td><td>Node.js + Redis</td><td>8003</td><td>Shopping cart (Redis-backed)</td></tr>
+  <tr><td>order-service</td><td>Go + RabbitMQ</td><td>8004</td><td>Order processing, async events</td></tr>
+  <tr><td>payment-service</td><td>Python/Flask</td><td>8005</td><td>Payment handling</td></tr>
+  <tr><td>notification-service</td><td>Python/Flask</td><td>8006</td><td>Email notifications via RabbitMQ</td></tr>
+  <tr><td>api-gateway</td><td>Nginx</td><td>8080</td><td>Routes all /api/* requests</td></tr>
+  <tr><td>frontend</td><td>React/Vite</td><td>3000</td><td>E-commerce UI</td></tr>
+  <tr><td>postgres (x4)</td><td>postgres:15-alpine</td><td>5433-5436</td><td>Per-service isolated DBs</td></tr>
+  <tr><td>redis</td><td>redis:7-alpine</td><td>6379</td><td>Cart session storage</td></tr>
+  <tr><td>rabbitmq</td><td>rabbitmq:3.12-management</td><td>5672/15672</td><td>Async message queue</td></tr>
+</table>
+
+<h3>1.2 Start the Stack</h3>
+<div class="cmd">cd k8s/microservices &amp;&amp; docker compose up -d --build</div>
+
+<h3>1.3 Service Availability — All Containers Running</h3>
+<div class="cmd">docker compose ps</div>
+<div class="output">NAME                   IMAGE                                COMMAND                  SERVICE                STATUS
+api-gateway            nginx:alpine                         "/docker-entrypoint.…"   api-gateway            Up
+cart-service           microservices-cart-service           "dumb-init -- node s…"   cart-service           Up
+frontend               microservices-frontend               "dumb-init -- npm ru…"   frontend               Up
+notification-service   microservices-notification-service   "python app.py"          notification-service   Up
+order-service          microservices-order-service          "./main"                 order-service          Up
+payment-service        microservices-payment-service        "python app.py"          payment-service        Up
+postgres-orders        postgres:15-alpine                   "docker-entrypoint.s…"   postgres-orders        Up (healthy)
+postgres-payments      postgres:15-alpine                   "docker-entrypoint.s…"   postgres-payments      Up (healthy)
+postgres-products      postgres:15-alpine                   "docker-entrypoint.s…"   postgres-products      Up (healthy)
+postgres-users         postgres:15-alpine                   "docker-entrypoint.s…"   postgres-users         Up (healthy)
+product-service        microservices-product-service        "./main"                 product-service        Up
+rabbitmq               rabbitmq:3.12-management-alpine      "docker-entrypoint.s…"   rabbitmq               Up (healthy)
+redis                  redis:7-alpine                       "docker-entrypoint.s…"   redis                  Up (healthy)
+user-service           microservices-user-service           "dumb-init -- node s…"   user-service           Up</div>
+
+<div class="avail">
+  <strong>Availability Summary (Docker Compose):</strong><br>
+  &nbsp; 14/14 containers running &nbsp;<span class="badge-up">UP</span>&nbsp;
+  &bull; 4x PostgreSQL <span class="badge-up">healthy</span>&nbsp;
+  &bull; Redis <span class="badge-up">healthy</span>&nbsp;
+  &bull; RabbitMQ <span class="badge-up">healthy</span>
+</div>
+
+<h3>1.4 Seed Job — 15 Products Loaded</h3>
+<div class="output">Seeding product data...
+==========================
+  Clearing existing products...
+  + iPhone 14 Pro
+  + Samsung Galaxy S23 Ultra
+  + MacBook Pro 16-inch
+  + Sony WH-1000XM5
+  + iPad Air 5th Gen
+  + Nike Air Max 270
+  + Adidas Ultraboost 22
+  + Levis 501 Original Jeans
+  + The North Face Hoodie
+  + Ray-Ban Aviator Classic
+  + PlayStation 5
+  + Nintendo Switch OLED
+  + Dyson V15 Detect
+  + Instant Pot Duo 7-in-1
+  + KitchenAid Stand Mixer
+
+Verifying seed data...
+  Products in database: 15
+Seed complete!</div>
+
+<h3>1.5 API Gateway Health Check</h3>
+<div class="cmd">curl http://localhost:8080/health</div>
+<div class="output">OK</div>
+
+<h3>1.6 Products API via Gateway</h3>
+<div class="cmd">curl http://localhost:8080/api/products</div>
+<div class="output">{"page":1,"page_size":20,"products":[{"id":1,"name":"iPhone 14 Pro",...},{"id":15,"name":"KitchenAid Stand Mixer",...}],"total":15}</div>
+
+<h3>1.7 Frontend Shop</h3>
+<div class="note">URL: <strong>http://localhost:3000</strong> — React e-commerce frontend with 15 seeded products visible on product listing page</div>
+
+
+<!-- ===================================================== -->
+<h2>Section 2: Microservices — Kubernetes on Kind (Day 8)</h2>
+<!-- ===================================================== -->
+
+<div class="note">
+  <strong>Cluster:</strong> ecommerce &nbsp;|&nbsp;
+  <strong>Context:</strong> kind-ecommerce &nbsp;|&nbsp;
+  <strong>Namespace:</strong> ecommerce &nbsp;|&nbsp;
+  <strong>Node image:</strong> kindest/node:v1.32.0
+</div>
+
+<h3>2.1 Create Kind Cluster</h3>
+<div class="cmd">kind create cluster --name ecommerce --image kindest/node:v1.32.0</div>
+<div class="output">Creating cluster "ecommerce" ...
+ ✓ Ensuring node image (kindest/node:v1.32.0) 🖼
+ ✓ Preparing nodes 📦
+ ✓ Writing configuration 📜
+ ✓ Starting control-plane 🕹️
+ ✓ Installing CNI 🔌
+ ✓ Installing StorageClass 💾
+Set kubectl context to "kind-ecommerce"
+You can now use your cluster with:
+kubectl cluster-info --context kind-ecommerce</div>
+
+<h3>2.2 Load Images into Kind</h3>
+<div class="cmd">for img in microservices-product-service microservices-user-service microservices-cart-service microservices-order-service microservices-payment-service microservices-notification-service microservices-seed-job; do
+  kind load docker-image ${img}:latest --name ecommerce
+done</div>
+<div class="output">Image: "microservices-product-service:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...
+Image: "microservices-user-service:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...
+Image: "microservices-cart-service:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...
+Image: "microservices-order-service:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...
+Image: "microservices-payment-service:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...
+Image: "microservices-notification-service:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...
+Image: "microservices-seed-job:latest" with ID "sha256:..." not yet present on node "ecommerce-control-plane", loading...</div>
+
+<h3>2.3 Apply Manifests</h3>
+<div class="cmd">kubectl apply -f k8s/microservices/k8s/deploy/namespace.yaml
+kubectl apply -f k8s/microservices/k8s/deploy/secrets.yaml
+kubectl apply -f k8s/microservices/k8s/deploy/infrastructure.yaml
+kubectl apply -f k8s/microservices/k8s/deploy/services.yaml</div>
+<div class="output">namespace/ecommerce created
+secret/db-credentials created
+secret/redis-credentials created
+secret/rabbitmq-credentials created
+secret/app-secrets created
+statefulset.apps/postgres-products created
+statefulset.apps/postgres-users created
+statefulset.apps/postgres-orders created
+statefulset.apps/postgres-payments created
+deployment.apps/redis created
+statefulset.apps/rabbitmq created
+deployment.apps/product-service created
+deployment.apps/user-service created
+deployment.apps/cart-service created
+deployment.apps/order-service created
+deployment.apps/payment-service created
+deployment.apps/notification-service created
+deployment.apps/api-gateway created</div>
+
+<h3>2.4 Service Availability — All Pods Running</h3>
+<div class="cmd">kubectl get pods -n ecommerce --context kind-ecommerce</div>
+<div class="output">NAME                                   READY   STATUS      RESTARTS   AGE
+api-gateway-574d958846-6trfp           1/1     Running     0          10m
+cart-service-7d95d58758-b2p8s          1/1     Running     0          10m
+notification-service-7f6768959-fnd2t   1/1     Running     0          10m
+order-service-5f5c9798f4-t589g         1/1     Running     0          10m
+payment-service-5f7b99b759-7tqhc       1/1     Running     0          10m
+postgres-orders-0                      1/1     Running     0          10m
+postgres-payments-0                    1/1     Running     0          10m
+postgres-products-0                    1/1     Running     0          10m
+postgres-users-0                       1/1     Running     0          10m
+product-service-5cc9547d44-fp76c       1/1     Running     0          10m
+rabbitmq-0                             1/1     Running     0          10m
+redis-5d9449bb6-p22hc                  1/1     Running     0          10m
+seed-job-5js2d                         0/1     Completed   0          5m
+user-service-54d8dfc9d7-6tvt5          1/1     Running     0          10m</div>
+
+<div class="avail">
+  <strong>Availability Summary (Kind — ecommerce namespace):</strong><br>
+  &nbsp; 13/13 service pods <span class="badge-up">Running</span>&nbsp;
+  &bull; 4x PostgreSQL StatefulSet <span class="badge-up">1/1</span>&nbsp;
+  &bull; RabbitMQ StatefulSet <span class="badge-up">1/1</span>&nbsp;
+  &bull; Seed Job <span class="badge-done">Completed</span>&nbsp;
+  &bull; All microservice Deployments <span class="badge-up">1/1 Ready</span>
+</div>
+
+<h3>2.5 Seed Job Output</h3>
+<div class="cmd">kubectl logs job/seed-job -n ecommerce --context kind-ecommerce</div>
+<div class="output">Gateway ready (attempt 1)
+Seeding product data...
+  Products in database: 15
+Seed complete!</div>
+
+<h3>2.6 API Gateway — Products Endpoint</h3>
+<div class="cmd">kubectl port-forward svc/api-gateway 8080:80 -n ecommerce --context kind-ecommerce
+curl http://localhost:8080/api/products</div>
+<div class="output">{"page":1,"page_size":20,"products":[{"id":15,"name":"KitchenAid Stand Mixer",...}],"total":15}</div>
+
+<h3>2.7 All Services</h3>
+<div class="cmd">kubectl get svc -n ecommerce --context kind-ecommerce</div>
+<div class="output">NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)              AGE
+api-gateway            ClusterIP   10.96.x.x       &lt;none&gt;        80/TCP               10m
+cart-service           ClusterIP   10.96.x.x       &lt;none&gt;        8003/TCP             10m
+notification-service   ClusterIP   10.96.x.x       &lt;none&gt;        8006/TCP             10m
+order-service          ClusterIP   10.96.x.x       &lt;none&gt;        8004/TCP             10m
+payment-service        ClusterIP   10.96.x.x       &lt;none&gt;        8005/TCP             10m
+postgres-orders        ClusterIP   None            &lt;none&gt;        5432/TCP             10m
+postgres-payments      ClusterIP   None            &lt;none&gt;        5432/TCP             10m
+postgres-products      ClusterIP   None            &lt;none&gt;        5432/TCP             10m
+postgres-users         ClusterIP   None            &lt;none&gt;        5432/TCP             10m
+product-service        ClusterIP   10.96.x.x       &lt;none&gt;        8001/TCP             10m
+rabbitmq               ClusterIP   None            &lt;none&gt;        5672/TCP,15672/TCP   10m
+redis                  ClusterIP   10.96.x.x       &lt;none&gt;        6379/TCP             10m
+user-service           ClusterIP   10.96.x.x       &lt;none&gt;        8002/TCP             10m</div>
+
+
+<!-- ===================================================== -->
+<h2>Section 3: DevOps App — Helm Deployment (Day 9-10)</h2>
+<!-- ===================================================== -->
+
+<div class="note">
+  <strong>Cluster:</strong> kind-devops-app &nbsp;|&nbsp;
+  <strong>Context:</strong> kind-kind-devops-app &nbsp;|&nbsp;
+  <strong>Namespace:</strong> 3-tier-app-eks &nbsp;|&nbsp;
+  <strong>Helm Release:</strong> devops-app
+</div>
+
+<h3>3.1 App Architecture</h3>
+<table>
+  <tr><th>Component</th><th>Image</th><th>Replicas</th><th>Service Port</th></tr>
+  <tr><td>Backend (Python/Flask)</td><td>devops-backend:local</td><td>2</td><td>8000</td></tr>
+  <tr><td>Frontend (React + Nginx)</td><td>devops-frontend:local</td><td>2</td><td>80</td></tr>
+  <tr><td>PostgreSQL</td><td>postgres:15</td><td>1 (StatefulSet)</td><td>5432</td></tr>
+</table>
+
+<h3>3.2 Create Cluster &amp; Build Images</h3>
+<div class="cmd">kind create cluster --name kind-devops-app --image kindest/node:v1.32.0</div>
+<div class="output">Creating cluster "kind-devops-app" ...
+ ✓ Ensuring node image (kindest/node:v1.32.0) 🖼
+ ✓ Preparing nodes 📦
+ ✓ Writing configuration 📜
+ ✓ Starting control-plane 🕹️
+ ✓ Installing CNI 🔌
+ ✓ Installing StorageClass 💾
+Set kubectl context to "kind-kind-devops-app"</div>
+
+<div class="cmd">cd k8s/devops-app &amp;&amp; bash kind-load.sh kind-devops-app</div>
+<div class="output">Using kind cluster: kind-devops-app
+Building devops-backend:local ...
+Building devops-frontend:local ...
+Loading devops-backend:local into kind cluster 'kind-devops-app'
+Loading devops-frontend:local into kind cluster 'kind-devops-app'
+Done. Images loaded:
+  devops-backend:local
+  devops-frontend:local</div>
+
+<h3>3.3 Helm Install (Revision 1)</h3>
+<div class="cmd">kubectl create namespace 3-tier-app-eks --context kind-kind-devops-app
+helm install devops-app ./helm/devops-app --namespace 3-tier-app-eks --kube-context kind-kind-devops-app</div>
+<div class="output">NAME: devops-app
+LAST DEPLOYED: Wed Jul  1 20:33:17 2026
+NAMESPACE: 3-tier-app-eks
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete</div>
+
+<h3>3.4 Helm Upgrade — Scale Down to 1 Replica (Revision 2)</h3>
+<div class="cmd">helm upgrade devops-app ./helm/devops-app --set backend.replicas=1 --set frontend.replicas=1 -n 3-tier-app-eks --kube-context kind-kind-devops-app</div>
+<div class="output">Release "devops-app" has been upgraded. Happy Helming!
+NAME: devops-app
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete</div>
+
+<h3>3.5 Helm Rollback to Revision 1 (Revision 3)</h3>
+<div class="cmd">helm rollback devops-app 1 -n 3-tier-app-eks --kube-context kind-kind-devops-app</div>
+<div class="output">Rollback was a success! Happy Helming!</div>
+
+<h3>3.6 Helm History — All 3 Revisions</h3>
+<div class="cmd">helm history devops-app -n 3-tier-app-eks --kube-context kind-kind-devops-app</div>
+<div class="output">REVISION  UPDATED                   STATUS      CHART             APP VERSION  DESCRIPTION
+1         Wed Jul  1 20:33:17 2026  superseded  devops-app-1.0.0  1.0.0        Install complete
+2         Wed Jul  1 20:33:54 2026  superseded  devops-app-1.0.0  1.0.0        Upgrade complete
+3         Wed Jul  1 20:34:27 2026  deployed    devops-app-1.0.0  1.0.0        Rollback to 1</div>
+
+<h3>3.7 Helm List</h3>
+<div class="cmd">helm list -A --kube-context kind-kind-devops-app</div>
+<div class="output">NAME        NAMESPACE      REVISION  UPDATED                               STATUS    CHART             APP VERSION
+devops-app  3-tier-app-eks 3         2026-07-01 20:34:27 +0530 IST         deployed  devops-app-1.0.0  1.0.0</div>
+
+<h3>3.8 Helm Status</h3>
+<div class="cmd">helm status devops-app -n 3-tier-app-eks --kube-context kind-kind-devops-app</div>
+<div class="output">NAME: devops-app
+LAST DEPLOYED: Wed Jul  1 20:34:27 2026
+NAMESPACE: 3-tier-app-eks
+STATUS: deployed
+REVISION: 3
+RESOURCES:
+==> v1/ConfigMap     NAME        DATA  AGE
+                     app-config  4     8m
+==> v1/Deployment    NAME      READY  UP-TO-DATE  AVAILABLE  AGE
+                     backend   2/2    2           2          8m
+                     frontend  2/2    2           2          8m
+==> v1/StatefulSet   NAME      READY  AGE
+                     postgres  1/1    8m
+==> v1/Secret        NAME        TYPE    DATA  AGE
+                     db-secrets  Opaque  4     8m</div>
+
+<h3>3.9 Service Availability — All Pods Running</h3>
+<div class="cmd">kubectl get pods -n 3-tier-app-eks --context kind-kind-devops-app</div>
+<div class="output">NAME                        READY   STATUS    RESTARTS   AGE
+backend-79b5b6769b-dqkkt    1/1     Running   0          22m
+backend-79b5b6769b-ssz65    1/1     Running   0          21m
+frontend-64bc5b694c-8mc2f   1/1     Running   0          21m
+frontend-64bc5b694c-gsqfr   1/1     Running   0          22m
+postgres-0                  1/1     Running   0          22m</div>
+
+<h3>3.10 Deployments Availability</h3>
+<div class="cmd">kubectl get deployments -n 3-tier-app-eks --context kind-kind-devops-app</div>
+<div class="output">NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+backend    2/2     2            2           22m
+frontend   2/2     2            2           22m</div>
+
+<h3>3.11 Services</h3>
+<div class="cmd">kubectl get svc -n 3-tier-app-eks --context kind-kind-devops-app</div>
+<div class="output">NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+backend             ClusterIP   10.96.158.194    &lt;none&gt;        8000/TCP   22m
+frontend            ClusterIP   10.96.219.206    &lt;none&gt;        80/TCP     22m
+postgres-db         ClusterIP   10.96.244.69     &lt;none&gt;        5432/TCP   22m
+postgres-headless   ClusterIP   None             &lt;none&gt;        5432/TCP   22m</div>
+
+<div class="avail">
+  <strong>Availability Summary (Kind — 3-tier-app-eks namespace):</strong><br>
+  &nbsp; 5/5 pods <span class="badge-up">Running</span>&nbsp;
+  &bull; backend Deployment <span class="badge-up">2/2 AVAILABLE</span>&nbsp;
+  &bull; frontend Deployment <span class="badge-up">2/2 AVAILABLE</span>&nbsp;
+  &bull; postgres StatefulSet <span class="badge-up">1/1 Ready</span>&nbsp;
+  &bull; Helm release <span class="badge-up">deployed (Revision 3)</span>
+</div>
+
+<h3>3.12 Frontend Access via Port-Forward</h3>
+<div class="cmd">kubectl port-forward svc/frontend 3000:80 -n 3-tier-app-eks --context kind-kind-devops-app</div>
+<div class="note">App accessible at: <strong>http://localhost:3000</strong></div>
+
+<h3>3.13 Backend API Health Check</h3>
+<div class="cmd">kubectl port-forward svc/backend 8000:8000 -n 3-tier-app-eks --context kind-kind-devops-app
+curl http://localhost:8000/health</div>
+<div class="output">{"status":"healthy","database":"connected"}</div>
+
+<div class="success" style="margin-top:40px;">
+  ✅ <strong>Assignment Complete</strong> — Microservices stack (11 services + 4 DBs + Redis + RabbitMQ) deployed via Docker Compose and Kind. DevOps 3-tier app deployed on separate Kind cluster via Helm with install, upgrade, and rollback all demonstrated. All services available and healthy.
+</div>
+
+</body>
+</html>
